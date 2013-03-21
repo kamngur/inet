@@ -17,13 +17,13 @@ int second =0;
 
 
 
-void init_data()
-{
-
-	int hour= atoi(compile_time);
-	int minute=atoi(compile_time+3);
-	int second=atoi (compile_time+6);
-}
+//void init_data()
+//{
+//
+//	int hour= atoi(compile_time);
+//	int minute=atoi(compile_time+3);
+//	int second=atoi (compile_time+6);
+//}
 
 int getCompileHour()
 {

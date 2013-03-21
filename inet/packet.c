@@ -13,17 +13,19 @@
 #include "ethernet_header.h"
 
 //! This is the IP address of this host (expressed in network format).
-static ip_address host_ip = {192,168,10,101};
-static ip_address localhost = {127,0,0,1};
+//static ip_address host_ip = {192,168,10,101};
+//static ip_address localhost = {127,0,0,1};
 //! This is the IP netmask of this host (expressed in network format).
-static ip_address host_netmask =  {0,0,0,0};
+//static ip_address host_netmask =  {0,0,0,0};
+
+
 
 
 void create_packiet(void *packet,__uint32_t pack_len,void * data,__uint32_t data_len)
 {
 	__uint8_t* ptr= packet;
 	ethernet_header * eth = ptr;
-	ip_header * ip = (ip_header *)(ptr+ETHER_HDR_LEN);
+	ip_header * ip = (ip_header *)(ptr+ETHER_HDR_LEN); 
 	udp_header * udp = (ptr+ETHER_HDR_LEN+ sizeof(ip_header));
 	unsigned int sss = sizeof(ip_header);
 	__uint16_t udp_crc=0;
@@ -33,7 +35,7 @@ void create_packiet(void *packet,__uint32_t pack_len,void * data,__uint32_t data
 	//ether_addr src={0x00,0x01,0x00,0x01,0x00,0x01};
 	ether_addr src={0x00,0x01,0x00,0x01,0x00,0x01};
 	ether_addr dst={0x00,0x00,0x00,0x00,0x00,0x00};
-	init_data();
+	//init_data();
 	create_ethernet_header(eth,&src,&dst,ETHER_TYPE_IPV4);
 	init_ip_header(ip);
 	

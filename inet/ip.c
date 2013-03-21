@@ -110,26 +110,8 @@ __uint16_t ip_checksum(const void *buf, size_t hdr_len)
 void init_ip_header(ip_header * ptr)
 {
 //ned to swap to net byte order
-//	typedef struct ip_header {
-//
-//		__uint8_t     ip_hl:4,		/* header length */
-//ip_v:4;		/* version */
-//		__uint8_t  ip_tos;		/* type of service */
-//		__uint16_t ip_len;		/* total length */
-//		__uint16_t ip_id;		/* identification */
-//		__uint16_t ip_off;		/* flags+ fragment offset field */
-//#define	IP_RF 0x8000			/* reserved fragment flag */
-//#define	IP_DF 0x4000			/* dont fragment flag */
-//#define	IP_MF 0x2000			/* more fragments flag */
-//#define	IP_OFFMASK 0x1fff		/* mask for fragmenting bits */
-//		__uint8_t  ip_ttl;		/* time to live */
-//		__uint8_t  ip_proto;			/* protocol */
-//		__uint16_t ip_crc;		/* checksum */
-//		ip_address ip_src;
-//		ip_address ip_dst; /* source and dest address */
-//		__uint32_t ip_options;    /*ip options + padding*/ /*in udp it takes diffrent structure */
-//	}ip_header;
-	ptr->ip_hl	= 0x45;
+
+	ptr->ip_hl	= (IP_HDR_VER << 4) | IP_HDR_IHL  ;
 	//ptr->ip_v	= 0x4;
 	ptr->ip_tos	= 0x00;
 	ptr->ip_len = 181;

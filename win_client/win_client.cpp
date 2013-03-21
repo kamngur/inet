@@ -71,7 +71,7 @@ void send_packiet()
 	u_char * ptr=(u_char *)&packiet;
 	int data_len=1450;
 	char data[1000]="abcdabcdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0" ;
-	
+	int s= sizeof(ip_header);
 	create_packiet((void*)ptr, data_len,(void*) data,data_len);
 	//=ethernet_checksum()
 	/* Send down the packet */
@@ -111,7 +111,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	eth = (ethernet_header *)(pkt_data);
 	dbg_ethernet_header(eth);
 	/* retireve the position of the ip header */
-	ih = (ip_header *) (pkt_data + 14); //length of ethernet header
+	ih = (ip_header *) (pkt_data + ETHER_HDR_LEN); //length of ethernet header
 	dbg_ip_header(ih);
 	/* retireve the position of the udp header */
 	ip_len = (ih->ip_hl) * 4;

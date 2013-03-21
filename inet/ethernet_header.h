@@ -19,7 +19,7 @@
 #define ETHER_MIN_LEN	64	/* Minimum frame length, CRC included	*/
 #define ETHER_MAX_LEN	1518	/* Maximum frame length, CRC included	*/
 #define ETHER_MAX_DIX_LEN	1536	/* Maximum DIX frame length	*/
-
+#define ETHER_HDR_OFF		0		/* Offset of ethernet header*/
 
 
 //const __uint8_t ethernet_preamble[ETHER_PREAMBLE_LEN]={0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAB};
