@@ -13,6 +13,13 @@
 #include "types.h"
 #include "ip_header.h"
 
+/*
+*
+
+
+
+*/
+
 typedef struct uuid {
 	__uint32_t	time_low;
 	__uint16_t	time_mid;
@@ -51,6 +58,22 @@ enum state
 	task*	client_task;
 };*/
 
+
+
+
+
+
+/*
+* Internal ,generic structure to manage processing of received data.
+* each structure instance describes possible task 
+* task_uuid - uuid of task client can do
+* data - data received to processing
+* data_len - length of data received
+* alloc_data_funtion_ptr - pointer to allocator function (alloc data structure needed by processing funtion) 
+* dealloc_data_funtion_ptr - pointer to deallocator function (look up)
+* process_funtion_ptr - pointer to processing function
+* 
+*/ 
 //typedef struct task{
 //	uuid task_uuid;
 //	//void *data;

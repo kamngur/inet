@@ -8,6 +8,8 @@
 #ifndef _BUILD_TIME_H_
 #define _BUILD_TIME_H_
 
+#include <stdlib.h>
+
 char compile_time[]= __TIME__;
 char compile_date[]= __DATE__;
 

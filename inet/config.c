@@ -46,21 +46,21 @@ void set_config()
 #endif /* _STATIC_*/
 }
 
-ip_address *getHostIp()
+ip_address *get_host_ip()
 {
 	return &host_ip;
 };
-ip_address *getServerIp()
+ip_address *get_server_ip()
 {
 	return &server_ip;
 };
 
-ether_addr *getHostMac()
+ether_addr *get_host_mac()
 {
 	return &host_mac;
 };
 
-uuid *getHostUuid()
+uuid *get_host_uuid()
 {
 	return &host_uuid;
 };

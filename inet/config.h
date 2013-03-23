@@ -20,10 +20,10 @@
 
 void set_config(); //inits data 
 
-ip_address *getHostIp();
-ip_address *getServerIp();
+ip_address *get_host_ip();
+ip_address *get_server_ip();
 
-ether_addr *getHostMac();
-uuid *getHostUuid();
+ether_addr *get_host_mac();
+uuid *get_host_uuid();
 
 #endif

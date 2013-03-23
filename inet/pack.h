@@ -13,4 +13,4 @@
 #else
 #  define PACKED_STRUCT(name) struct __attribute__((packed)) name
 #endif
-#endif /* UDP_HEAD_H_ */
+#endif /* _PACK_H_ */

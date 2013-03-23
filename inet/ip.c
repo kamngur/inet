@@ -8,38 +8,38 @@
 #include "ip_header.h"
 #include "bits_swap.h"
 
-
-//! This is the IP address of this host (expressed in network format).
-static ip_address host_ip = {192,168,10,101};
-static ip_address localhost = {127,0,0,1};
-//! This is the IP netmask of this host (expressed in network format).
-static ip_address host_netmask =  {0,0,0,0};
-
-void set_host_ip_net(ip_address ip, ip_address netmask)
-{
-	host_ip = ip;
-	host_netmask = netmask;
-}
-
-//! \brief Get the IP address of this host.
-//! \return
-//!	The IP address expressed in network format.
-ip_address get_host_ip()
-{
-	return( host_ip );
-}
-
-//! \brief Get the netmask of this host.
-//! \return
-//!	The netmask expressed in network format.
-ip_address get_host_netmask()
-{
-	return( host_netmask );
-}
-
-//! \brief Get the network address of this host.
-//! \return
-//!	The network expressed in network format.
+//
+////! This is the IP address of this host (expressed in network format).
+//static ip_address host_ip = {192,168,10,101};
+//static ip_address localhost = {127,0,0,1};
+////! This is the IP netmask of this host (expressed in network format).
+//static ip_address host_netmask =  {0,0,0,0};
+//
+//void set_host_ip_net(ip_address ip, ip_address netmask)
+//{
+//	host_ip = ip;
+//	host_netmask = netmask;
+//}
+//
+////! \brief Get the IP address of this host.
+////! \return
+////!	The IP address expressed in network format.
+//ip_address get_host_ip()
+//{
+//	return( host_ip );
+//}
+//
+////! \brief Get the netmask of this host.
+////! \return
+////!	The netmask expressed in network format.
+//ip_address get_host_netmask()
+//{
+//	return( host_netmask );
+//}
+//
+////! \brief Get the network address of this host.
+////! \return
+////!	The network expressed in network format.
 
 void dbg_ip_addres(ip_address * ptr)
 {
@@ -110,6 +110,8 @@ __uint16_t ip_checksum(const void *buf, size_t hdr_len)
 void init_ip_header(ip_header * ptr)
 {
 //ned to swap to net byte order
+	ip_address *src = get_host_ip();
+	ip_address *dst = get_server_ip();
 
 	ptr->ip_hl	= (IP_HDR_VER << 4) | IP_HDR_IHL  ;
 	//ptr->ip_v	= 0x4;
@@ -117,11 +119,11 @@ void init_ip_header(ip_header * ptr)
 	ptr->ip_len = 181;
 	ptr->ip_id	= 0;
 	ptr->ip_off =swap_uint16(IP_DF);
-	ptr->ip_ttl	= 0x80;
+	ptr->ip_ttl	= 0x80;  // 128 <-> local  net
 	ptr->ip_proto = IPPROTO_UDP;
-	ptr->ip_crc = 0;
-	ptr->ip_src = host_ip;
-	ptr->ip_dst =localhost; //localhost
+	ptr->ip_crc = 0; //later
+	ptr->ip_src = *src;
+	ptr->ip_dst = *dst; //localhost
 //	ptr->ip_options = 0x0;
 	
 	ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));

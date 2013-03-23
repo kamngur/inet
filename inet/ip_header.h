@@ -90,10 +90,10 @@ typedef struct ip_header {
 void dbg_ip_header(ip_header * );
 void dbg_ip_addres(ip_address *);
 
-void set_host_ip_net(ip_address ip, ip_address netmask);
-ip_address get_host_ip();
-ip_address get_host_netmask();
-ip_address get_host_net();
+//void set_host_ip_net(ip_address ip, ip_address netmask);
+//ip_address get_host_ip();
+//ip_address get_host_netmask();
+//ip_address get_host_net();
 
 __uint16_t ip_checksum(const void *buf, size_t hdr_len);
 void init_ip_header(ip_header * ptr);
