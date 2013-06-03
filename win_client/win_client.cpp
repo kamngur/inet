@@ -33,6 +33,7 @@ pcap_t *adhandle;
 
 void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
 {
+	add_crc(data_ptr,tx_len);
 	if (pcap_sendpacket(adhandle,	// Adapter
 		data_ptr,				// buffer with the packet
 		(int)tx_len				// size
@@ -41,6 +42,37 @@ void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
 		fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(adhandle));
 		//return 3;
 	}
+
+}
+
+void add_crc(unsigned char *ptr,unsigned int tx_len)
+{
+	
+	ethernet_header * eth ;
+	ip_header * ip;
+	udp_header * udp ;
+	
+	__uint8_t *my_ptr=0;
+	__uint16_t udp_crc=0;
+	__uint32_t eth_crc=0;
+	__uint32_t m_data_len= tx_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
+	ethernet_header * eth ;
+	ip_header * ip;
+	udp_header * udp ;
+	get_headers((char *) ptr, &eth, &ip, &udp )
+	ip->ip_crc =ip_checksum (ip,sizeof(ip_header));
+
+	
+	udp_crc=udp_checksum(udp,swap_uint16(udp->uh_ulen)+8,ip->ip_src,ip->ip_dst);
+	udp->uh_crc=udp_crc;
+	
+
+	eth_crc = ethernet_checksum(ptr,pack_len);
+	my_ptr = ptr + tx_len -4;
+	*my_ptr++=(__uint8_t)((eth_crc & 0xff000000)>>24);
+	*my_ptr++=(__uint8_t)((eth_crc & 0x00ff0000)>>16);
+	*my_ptr++=(__uint8_t)((eth_crc & 0x0000ff00)>>8);
+	*my_ptr++=(__uint8_t)((eth_crc & 0x000000ff));
 
 }
 
@@ -107,10 +139,10 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 
 	
 	dbg_ethernet_header(eth);
-	/* retireve the position of the ip header */
+	/* retrieve the position of the ip header */
 
 	dbg_ip_header(ih);
-	/* retireve the position of the udp header */
+	/* retrieve the position of the udp header */
 
 	
 	/* convert from network byte order to host byte order */
