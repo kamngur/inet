@@ -25,26 +25,29 @@
 void create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t data_len)
 {
 	char* ptr= (char *)packet_data;
-	ethernet_header * eth = (ethernet_header *) ptr;
-	ip_header * ip =(ip_header *)(ptr + ETHER_HDR_LEN );
-	udp_header * udp =(udp_header *) (ptr + ETHER_HDR_LEN + (ip->ip_hl&0x0F)*4); // ip->ip_hl is in 32 bit words -> to make offset need to go to 8 bit word
-	int ip_hdr_size = IP_HEADER_SIZE;
-	int ip_hdr_size2 = ip->ip_hl&0xF;
+	ethernet_header * eth;
+	ip_header * ip ;
+	udp_header * udp ;
+
+	unsigned int ip_hdr_size = IP_HEADER_SIZE;
+	unsigned int ip_hdr_size2 = 0;
+	__uint32_t m_data_len= pack_len - ETHER_HDR_LEN - 20 - 8;
+	
 	//unsigned int sss = sizeof(ip_header);
 	//__uint8_t *my_ptr=0;
 	//__uint16_t udp_crc=0;
 	//__uint32_t eth_crc=0;
-	__uint32_t m_data_len= pack_len - ETHER_HDR_LEN - 20 - 8;
+	
 
 	//ether_addr src={0x00,0x01,0x00,0x01,0x00,0x01};
 	ether_addr src = {0x00,0x00,0x00,0x00,0x00,0x00};
 	ether_addr dst = {0x00,0x01,0x00,0x01,0x00,0x01};
 
-
-
+	get_headers((char * )packet_data, &eth,&ip , &udp, 0);
+	
 	create_ethernet_header(eth,&src,&dst,ETHER_TYPE_IPV4);
 	init_ip_header(ip);
-	
+	 ip_hdr_size2 = ip->ip_hl& 0xF;
 	create_udp_header(udp, (in_port_t)8081,(in_port_t)8081,m_data_len,0);
 
 	//if(data_len>pack_len-ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE-4)
@@ -78,13 +81,19 @@ int filter_packiets(char* packet_data,__uint32_t pack_len)
 	__uint32_t offset = 0;
 	__uint32_t packet_len =ETHER_MAX_LEN;
 	__uint16_t flags =0;
+
+	int u = IP_HDR_VER;
 	void * data_ptr =0;
 	char packet[ETHER_MAX_DIX_LEN];
+
+	
 	//ncp_datagram* ptr= &packet;
-	ethernet_header * eth = (ethernet_header *)  packet_data;
-	ip_header * ip = (ip_header *)(packet_data + ETHER_HDR_LEN);
+	ethernet_header * eth;
+	ip_header * ip;
 	ip_address * addres  = get_host_ip();
 	int i;
+
+	get_headers(packet_data, &eth, &ip, 0 ,0);
 
 	if(eth->ether_type == 0x0608 )
 	{
@@ -95,8 +104,8 @@ int filter_packiets(char* packet_data,__uint32_t pack_len)
 	{
 		return 1;
 	}
-
-	if( (ip->ip_hl&0xF0) != IP_HDR_VER<<4)
+	u = u << 4;
+	if( (ip->ip_hl&0xF0) != (IP_HDR_VER<<4))
 	{
 		return 2;
 	}
@@ -170,17 +179,17 @@ int send_big_data(void * data,__uint16_t data_len)
 	void * data_ptr =0;
 	char packet[ETHER_MAX_DIX_LEN];
 	//ncp_datagram* ptr= &packet;
-	ethernet_header * eth = (ethernet_header *) data;
-	ip_header * ip = (ip_header *)data + ETHER_HDR_LEN;
-	udp_header * udp = (udp_header * )ip + (ip->ip_hl & 0x0F)*4;
-	ncp_header * ncp = (ncp_header *) udp + UDP_HEADER_SIZE;
-
-
-
+	ethernet_header * eth ;
+	ip_header * ip;
+	udp_header * udp ;
+	ncp_header * ncp;
+	
 	__uint16_t pack_payload_start;
 	ether_addr src = {0x00,0x01,0x00,0x01,0x00,0x01};
 	ether_addr dst = {0x00,0x00,0x00,0x00,0x00,0x00};
 
+
+	get_headers((char*) data, &eth, &ip, &udp, &ncp );
 	create_ethernet_header(eth,&src,&dst,ETHER_TYPE_IPV4);
 	init_ip_fragment_header(ip,IP_MF,0,data_len);
 
@@ -218,6 +227,31 @@ int send_big_data(void * data,__uint16_t data_len)
 	}
 
 	return 0;
+
+}
+
+
+
+
+void get_headers(char * data, ethernet_header ** eth, ip_header ** ip, udp_header ** udp, ncp_header ** ncp )
+{
+	unsigned int s1 = ETHER_HDR_LEN;
+	unsigned int s2 = IP_HEADER_SIZE;
+	unsigned int s3 = UDP_HEADER_SIZE;
+	if(data == 0)
+		return;
+
+	if(eth != 0)
+		*eth = data;
+
+	if(ip != 0)
+		*ip  = data + ETHER_HDR_LEN;
+
+	if(udp != 0)
+		*udp = data + ETHER_HDR_LEN + IP_HEADER_SIZE;
+	
+	if(ncp != 0)
+		*ncp = data + ETHER_HDR_LEN + IP_HEADER_SIZE + UDP_HEADER_SIZE;
 
 }
 

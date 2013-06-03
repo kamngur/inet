@@ -95,21 +95,23 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	printf("%s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
 
 	val = filter_packiets((char *)pkt_data, header->len);
+
+	
+
 	if (val != 0)
 	{
 		
 		return ;
 	}
+	get_headers((char *)pkt_data,&eth,&ih,&uh,0);
 
-
-	eth = (ethernet_header *)(pkt_data);
+	
 	dbg_ethernet_header(eth);
 	/* retireve the position of the ip header */
-	ih = (ip_header *) (pkt_data + ETHER_HDR_LEN); //length of ethernet header
+
 	dbg_ip_header(ih);
 	/* retireve the position of the udp header */
-	ip_len = (ih->ip_hl &0x0F) * 4;
-	uh = (udp_header *) ((u_char*)ih + ip_len);
+
 	
 	/* convert from network byte order to host byte order */
 	sport = ntohs( uh->uh_sport );

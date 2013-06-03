@@ -15,7 +15,7 @@
 #define	ETHER_ADDR_LEN	6	/* Ethernet address length		*/
 #define ETHER_TYPE_LEN	2	/* Ethernet type field length		*/
 #define ETHER_CRC_LEN	4	/* Ethernet CRC length			*/
-#define ETHER_HDR_LEN	((ETHER_ADDR_LEN * 2) + ETHER_TYPE_LEN)
+#define ETHER_HDR_LEN	14
 #define ETHER_MIN_LEN	64	/* Minimum frame length, CRC included	*/
 #define ETHER_MAX_LEN	1518	/* Maximum frame length, CRC included	*/
 #define ETHER_MAX_DIX_LEN	1536	/* Maximum DIX frame length	*/

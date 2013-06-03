@@ -26,8 +26,23 @@
 
 PACKED_STRUCT(ncp_datagram);
 
+/*
+* Simple function to test creation of ethernet/ip/upd/ncp packiet
+*/
 void create_packiet(void *packiet,__uint32_t pack_len,void * data,__uint32_t data_len);
-int send_big_data(void * data,__uint16_t data_len);
 
+/*
+*	Function to test fragmentation in ip/udp
+*/
+int send_big_data(void * data,__uint16_t data_len);
+/*
+* Function to get pointers to each header
+*/
+void get_headers(char * data, ethernet_header ** eth, ip_header ** ip, udp_header ** udp, ncp_header ** ncp);
+
+
+/*
+* Function to filter packet that aren't IPv4/UPD 
+*/
 int filter_packiets(char *packet_data,__uint32_t pack_len);
 #endif
