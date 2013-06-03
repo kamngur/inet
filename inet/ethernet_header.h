@@ -22,6 +22,7 @@
 #define ETHER_HDR_OFF		0		/* Offset of ethernet header*/
 
 
+
 //const __uint8_t ethernet_preamble[ETHER_PREAMBLE_LEN]={0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAB};
 
 #define ETHER_TYPE_IPV4 0x0800

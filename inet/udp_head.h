@@ -14,6 +14,9 @@
  * Udp protocol header.
  * Per RFC 768, September, 1981.
  */
+
+#define UDP_MAX_MSG_SIZE  0xFFE3 //(65535-(20+8) = 65507)
+
 typedef struct udp_header {
 	__uint16_t uh_sport;		/* source port */
 	__uint16_t uh_dport;		/* destination port */

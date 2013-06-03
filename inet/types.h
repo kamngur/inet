@@ -12,6 +12,11 @@
 #define __BIT_TYPES_DEFINED__
 #include <sys\types.h>
 #include <stddef.h>
+/*
+	Funny story ... Visual Studio don't have stdint.h. VS in many ways isn't compatible with C99
+	Use http://msinttypes.googlecode.com/svn/trunk/stdint.h
+*/
+#include <stdint.h>
 
 /*i386 types*/
 /* 7.18.1.1 Exact-width integer types */
@@ -30,8 +35,8 @@ typedef	long long		__int64_t;
 /* LONGLONG */
 typedef	unsigned long long	__uint64_t;
 
-#ifndef	_INT8_T_DEFINED_
-#define	_INT8_T_DEFINED_
+#ifndef	__int8_t_defined
+#define	__int8_t_defined
 typedef	__int8_t		int8_t;
 #endif
 
@@ -50,15 +55,7 @@ typedef	__int16_t		int16_t;
 typedef	__uint16_t		uint16_t;
 #endif
 
-#ifndef	_INT32_T_DEFINED_
-#define	_INT32_T_DEFINED_
-typedef	__int32_t		int32_t;
-#endif
 
-#ifndef	_UINT32_T_DEFINED_
-#define	_UINT32_T_DEFINED_
-typedef	__uint32_t		uint32_t;
-#endif
 
 #ifndef	_INT64_T_DEFINED_
 #define	_INT64_T_DEFINED_

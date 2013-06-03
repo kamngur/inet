@@ -106,6 +106,7 @@ __uint16_t ip_checksum(const void *buf, size_t hdr_len)
 	return(~sum);
 }
 
+__uint16_t ip_num=0;
 
 void init_ip_header(ip_header * ptr)
 {
@@ -117,7 +118,7 @@ void init_ip_header(ip_header * ptr)
 	//ptr->ip_v	= 0x4;
 	ptr->ip_tos	= 0x00;
 	ptr->ip_len = 181;
-	ptr->ip_id	= 0;
+	ptr->ip_id	= ip_num++;
 	ptr->ip_off =swap_uint16(IP_DF);
 	ptr->ip_ttl	= 0x80;  // 128 <-> local  net
 	ptr->ip_proto = IPPROTO_UDP;
@@ -126,7 +127,54 @@ void init_ip_header(ip_header * ptr)
 	ptr->ip_dst = *dst; //localhost
 //	ptr->ip_options = 0x0;
 	
-	ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));
+	//ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));
+
+
+}
+
+
+// ofset in oktets
+void init_ip_fragment_header(ip_header * ptr,__uint16_t flags,__uint16_t offset,__uint16_t len)
+{
+//ned to swap to net byte order
+	__uint16_t temp1;
+	__uint16_t temp2;
+
+	ip_address *src = get_host_ip();
+	ip_address *dst = get_server_ip();
+
+	ptr->ip_hl	= (IP_HDR_VER << 4) | IP_HDR_IHL  ;
+	//ptr->ip_v	= 0x4;
+	ptr->ip_tos	= 0x00;
+	ptr->ip_len = 181;
+	ptr->ip_id	= ip_num++;
+	temp1 = swap_uint16(flags);
+	temp2 = swap_uint16(offset);
+	//ptr->ip_off =(swap_uint16(flags)&0x07)|(swap_uint16(offset)&0xF8); //TODO
+	ptr->ip_off =swap_uint16((flags && 0xE000)|(offset & 0x1FFF)); //TODO
+
+	ptr->ip_ttl	= 0x80;  // 128 <-> local  net
+	ptr->ip_proto = IPPROTO_UDP;
+	ptr->ip_crc = 0; //later
+	ptr->ip_src = *src;
+	ptr->ip_dst = *dst; //localhost
+//	ptr->ip_options = 0x0;
+
+	//ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));
+
+
+}
+
+// ofset in oktets
+void modify_ip_fragment_header(ip_header * ptr,__uint16_t flags,__uint16_t offset)
+{
+//ned to swap to net byte order
+	//ptr->ip_v	= 0x4;
+	//ptr->ip_tos	= 0x00;
+	ptr->ip_len = 181;
+	ptr->ip_id	= ip_num++;
+	ptr->ip_off =(swap_uint16(flags)&0x07)||(swap_uint16(offset)&0xF8);
+	ptr->ip_ttl	= 0x80;  // 128 <-> local  net
 
 
 }

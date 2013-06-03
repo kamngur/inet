@@ -12,13 +12,15 @@
 #include "pack.h"
 
 typedef __uint8_t	in_addr_t;	/* base type for internet address */
-typedef __uint8_t	in_port_t;	/* IP port type */
+typedef __uint16_t	in_port_t;	/* IP port type */
 
 #define IP_HDR_OFFSET 14
 #define IP_HDR_LENGHT_PSEUDOHEADER 16
 #define IP_HDR_LENGHT 20
 #define IP_HDR_VER	0x4
 #define IP_HDR_IHL	0x5
+#define IP_PAYLOAD_MAX 1480
+
 /*
  * Protocols
  */

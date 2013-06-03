@@ -11,7 +11,7 @@
 
 static ip_address host_ip = {192,168,10,10};
 static ip_address server_ip = {192,168,1,1};
-static ether_addr host_mac;
+static ether_addr host_mac = { 0x01, 0x60, 0x6E, 0x11, 0x01, 0x1F  };
 static ip_address localhost = {127,0,0,1};
 //! This is the IP netmask of this host (expressed in network format).
 static ip_address host_netmask =  {255,255,0,0};

@@ -26,45 +26,28 @@ extern "C"
 
 pcap_t *adhandle;
 
-//#define ntohs(x)
 
 
-/* 4 bytes IP address */
-//typedef struct ip_address
-//{
-//	u_char byte1;
-//	u_char byte2;
-//	u_char byte3;
-//	u_char byte4;
-//}ip_address;
-//
-///* IPv4 header */
-//typedef struct ip_header
-//{
-//	u_char	ver_ihl;		// Version (4 bits) + Internet header length (4 bits)
-//	u_char	ip_tos;			// Type of service 
-//	u_short ip_len;			// Total length 
-//	u_short ip_id; // Identification
-//	u_short ip_off;		// Flags (3 bits) + Fragment offset (13 bits)
-//	u_char	ip_ttl;			// Time to live
-//	u_char	ip_proto;			// Protocol
-//	u_short ip_crc;			// Header checksum
-//	ip_address	ip_src;		// Source address
-//	ip_address	ip_dst;		// Destination address
-//	u_int	ip_options;			// Option + Padding
-//}ip_header;
-//
-///* UDP header*/
-//typedef struct udp_header
-//{
-//	u_short uh_sport;			// Source port
-//	u_short uh_dport;			// Destination port
-//	u_short uh_len;			// Datagram length
-//	u_short uh_crc;			// Checksum
-//}udp_header;
+
+
+
+void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
+{
+	if (pcap_sendpacket(adhandle,	// Adapter
+		data_ptr,				// buffer with the packet
+		(int)tx_len				// size
+		) != 0)
+	{
+		fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(adhandle));
+		//return 3;
+	}
+
+}
 
 /* prototype of the packet handler */
 /* Callback function invoked by libpcap for every incoming packet */
+
+
 void send_packiet()
 {
 	char packiet[ETHER_MAX_LEN];
@@ -95,6 +78,8 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	u_int ip_len;
 	u_short sport,dport;
 	time_t local_tv_sec;
+	int val =0;
+
 
 	/*
 	 * unused parameter
@@ -107,16 +92,25 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
 
 	/* print timestamp and length of the packet */
-	printf("%s.%.6d len:%d ", timestr, header->ts.tv_usec, header->len);
+	printf("%s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
+
+	val = filter_packiets((char *)pkt_data, header->len);
+	if (val != 0)
+	{
+		
+		return ;
+	}
+
+
 	eth = (ethernet_header *)(pkt_data);
 	dbg_ethernet_header(eth);
 	/* retireve the position of the ip header */
 	ih = (ip_header *) (pkt_data + ETHER_HDR_LEN); //length of ethernet header
 	dbg_ip_header(ih);
 	/* retireve the position of the udp header */
-	ip_len = (ih->ip_hl) * 4;
+	ip_len = (ih->ip_hl &0x0F) * 4;
 	uh = (udp_header *) ((u_char*)ih + ip_len);
-
+	
 	/* convert from network byte order to host byte order */
 	sport = ntohs( uh->uh_sport );
 	dport = ntohs( uh->uh_dport );
@@ -153,7 +147,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	set_config();
 	char errbuf[PCAP_ERRBUF_SIZE];
 	u_int netmask;
-	char packet_filter[] = "ip and udp";
+	//char packet_filter[] = "ip and udp";
+	char packet_filter[] = "";
 	struct bpf_program fcode;
 	
 	/* Retrieve the device list */

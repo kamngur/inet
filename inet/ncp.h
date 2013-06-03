@@ -14,9 +14,7 @@
 #include "ip_header.h"
 
 /*
-*
-
-
+ UUID structure. structure used to identify: processing_unit (or porcesor or whole machine), task, job.
 
 */
 
@@ -28,10 +26,16 @@ typedef struct uuid {
 	__uint8_t	node[6]; 
 }uuid;
 
+
+/* 
+* NCP message types definitions
+*/
 #define NCP_REGISTER	0x52475354 //RGST /*register*/
 #define NCP_DATA		0x44415441 //DATA //data
 #define NCP_RESULT		0x52534c54 //RSLT //result
 #define NCP_PROGGRES	0x50424752 //PRGR //proggress
+
+#define NCP_HEADER_SIZE sizeof(ncp_header)
 
 typedef struct ncp_header {
 	__uint32_t ncp_comm;		/* communicate */
@@ -39,15 +43,16 @@ typedef struct ncp_header {
 	__uint32_t ncp_option1;		/*field with options*/
 	__uint32_t ncp_option2;	
 	uuid	ncp_client;			/* UUID of client*/		//(77d68722-bb20-4223-b34d-4bdf2059a731);	
+	uuid	ncp_project;			/* UUID of project/task*/ 
 	uuid	ncp_task;			/* UUID of project/task*/ 
 }ncp_header;
 
-
+/*
 typedef struct task{
 	uuid task_uuid;
 
 };
-
+*/
 enum state
 {IDLE,PROCESSING,MAX_STATE };
 

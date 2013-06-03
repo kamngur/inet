@@ -15,7 +15,7 @@
 #include "ncp.h"
 
 
-
+extern ether_addr host_mac;
 
 
 void set_config(); //inits data 
