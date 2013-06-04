@@ -22,17 +22,19 @@
 
 
 
-void create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t data_len)
+int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t data_len)
 {
 	char* ptr= (char *)packet_data;
 	ethernet_header * eth;
 	ip_header * ip ;
 	udp_header * udp ;
 
+
 	unsigned int ip_hdr_size = IP_HEADER_SIZE;
 	unsigned int ip_hdr_size2 = 0;
 	__uint32_t m_data_len= pack_len - ETHER_HDR_LEN - 20 - 8;
 	
+
 	//unsigned int sss = sizeof(ip_header);
 	//__uint8_t *my_ptr=0;
 	//__uint16_t udp_crc=0;
@@ -43,19 +45,27 @@ void create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t
 	ether_addr src = {0x00,0x00,0x00,0x00,0x00,0x00};
 	ether_addr dst = {0x00,0x01,0x00,0x01,0x00,0x01};
 
-	get_headers((char * )packet_data, &eth,&ip , &udp, 0);
+
+
+	if(data_len > pack_len - ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE -ETHER_CRC_LEN)
+	{
+		m_data_len = pack_len - ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE -ETHER_CRC_LEN;
+	}
+	else
+	{
+		m_data_len = data_len;
+	}
+
+	get_headers((char * )packet_data, &eth,&ip , &udp, &ptr);
 	
 	create_ethernet_header(eth,&src,&dst,ETHER_TYPE_IPV4);
 	init_ip_header(ip);
 	 ip_hdr_size2 = ip->ip_hl& 0xF;
 	create_udp_header(udp, (in_port_t)8081,(in_port_t)8081,m_data_len,0);
 
-	//if(data_len>pack_len-ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE-4)
-	//	memcpy(ptr->ncp_data,data,(size_t)pack_len-ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE);
-	//else
-	//	memcpy(ptr->ncp_data,data,(size_t)data_len);
+	memcpy(ptr,data,(size_t)m_data_len);
 
-
+	return m_data_len + ETHER_HDR_LEN + IP_HEADER_SIZE + UDP_HEADER_SIZE + ETHER_CRC_LEN;
 	
 
 

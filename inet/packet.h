@@ -29,8 +29,8 @@ PACKED_STRUCT(ncp_datagram);
 /*
 * Simple function to test creation of ethernet/ip/upd/ncp packiet
 */
-void create_packiet(void *packiet,__uint32_t pack_len,void * data,__uint32_t data_len);
 
+int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t data_len);
 /*
 *	Function to test fragmentation in ip/udp
 */

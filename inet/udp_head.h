@@ -25,5 +25,6 @@ typedef struct udp_header {
 }udp_header;
 
 void create_udp_header(udp_header *ptr , in_port_t src , in_port_t dst,__uint16_t len,__uint16_t crc);
-__uint16_t udp_checksum(const void *buff, __uint32_t len, ip_address src_addr, ip_address dest_addr);
+__uint16_t udp_checksum(const void *buff, __uint32_t len, ip_address *src_addr, ip_address *dest_addr);
+__uint16_t udp_sum_calc( __uint16_t buff[],__uint16_t len_udp, __uint16_t src_addr[],__uint16_t dest_addr[] );
 #endif /* UDP_HEAD_H_ */

@@ -9,6 +9,7 @@ extern "C"
 #include "ethernet_header.h"
 #include "ip_header.h"
 #include "udp_head.h"
+#include "packed.h"
 #include "packet.h"
 #include "build_time.h"
 #include "config.h"
@@ -31,6 +32,43 @@ pcap_t *adhandle;
 
 
 
+
+void add_crc(unsigned char *ptr,unsigned int tx_len)
+{
+	
+	
+	__uint32_t ethernet_len;
+	__uint8_t *my_ptr=0;
+	__uint16_t udp_crc=0;
+	__uint16_t udp_crc2=0;
+	__uint16_t udp_crc3=0;
+	__uint16_t udp_crc4=0;
+	__uint32_t eth_crc=0;
+	__uint32_t m_data_len= tx_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
+	ethernet_header * eth ;
+	ip_header * ip;
+	udp_header * udp ;
+	get_headers((char *) ptr, &eth, &ip, &udp, 0 );
+	ip->ip_crc =ip_checksum (ip,sizeof(ip_header));
+	m_data_len = swap_uint16(udp->uh_ulen);
+	ethernet_len = ETHER_HDR_LEN + IP_HEADER_SIZE +  UDP_HEADER_SIZE + m_data_len + 4;
+	
+	udp_crc = udp_sum_calc((__uint16_t*)udp,m_data_len+8,(__uint16_t*)&(ip->ip_src),(__uint16_t*)&(ip->ip_dst));
+	udp_crc2 = udp_checksum(udp,m_data_len+8,&(ip->ip_src),&(ip->ip_dst));
+	udp_crc3 = udp_sum_calc((__uint16_t*)udp,m_data_len,(__uint16_t*)&(ip->ip_src),(__uint16_t*)&(ip->ip_dst));
+	udp_crc4 = udp_checksum(udp,m_data_len,&(ip->ip_src),&(ip->ip_dst));
+	udp->uh_crc = udp_crc;
+	
+
+	eth_crc = ethernet_checksum(ptr,ethernet_len);
+	my_ptr = ptr + ethernet_len -4;
+	*my_ptr++=(__uint8_t)((eth_crc & 0xff000000)>>24);
+	*my_ptr++=(__uint8_t)((eth_crc & 0x00ff0000)>>16);
+	*my_ptr++=(__uint8_t)((eth_crc & 0x0000ff00)>>8);
+	*my_ptr++=(__uint8_t)((eth_crc & 0x000000ff));
+
+}
+
 void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
 {
 	add_crc(data_ptr,tx_len);
@@ -45,36 +83,6 @@ void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
 
 }
 
-void add_crc(unsigned char *ptr,unsigned int tx_len)
-{
-	
-	ethernet_header * eth ;
-	ip_header * ip;
-	udp_header * udp ;
-	
-	__uint8_t *my_ptr=0;
-	__uint16_t udp_crc=0;
-	__uint32_t eth_crc=0;
-	__uint32_t m_data_len= tx_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
-	ethernet_header * eth ;
-	ip_header * ip;
-	udp_header * udp ;
-	get_headers((char *) ptr, &eth, &ip, &udp )
-	ip->ip_crc =ip_checksum (ip,sizeof(ip_header));
-
-	
-	udp_crc=udp_checksum(udp,swap_uint16(udp->uh_ulen)+8,ip->ip_src,ip->ip_dst);
-	udp->uh_crc=udp_crc;
-	
-
-	eth_crc = ethernet_checksum(ptr,pack_len);
-	my_ptr = ptr + tx_len -4;
-	*my_ptr++=(__uint8_t)((eth_crc & 0xff000000)>>24);
-	*my_ptr++=(__uint8_t)((eth_crc & 0x00ff0000)>>16);
-	*my_ptr++=(__uint8_t)((eth_crc & 0x0000ff00)>>8);
-	*my_ptr++=(__uint8_t)((eth_crc & 0x000000ff));
-
-}
 
 /* prototype of the packet handler */
 /* Callback function invoked by libpcap for every incoming packet */
@@ -82,17 +90,17 @@ void add_crc(unsigned char *ptr,unsigned int tx_len)
 
 void send_packiet()
 {
-	char packiet[ETHER_MAX_LEN];
+	char packiet[1502];
 	u_char * ptr=(u_char *)&packiet;
-	int data_len=1450;
-	char data[1000]="abcdabcdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0" ;
+	int data_len=1502;
+	char data[10]="abcdefgh\0" ;
 	int s= sizeof(ip_header);
-	create_packiet((void*)ptr, data_len,(void*) data,data_len);
-	//=ethernet_checksum()
+	s = create_packiet((void*)ptr, data_len,(void*) data,8);
+	add_crc(ptr,data_len);
 	/* Send down the packet */
 	if (pcap_sendpacket(adhandle,	// Adapter
 		ptr,				// buffer with the packet
-		data_len				// size
+		s				// size
 		) != 0)
 	{
 		fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(adhandle));
@@ -178,7 +186,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	int inum;
 	int i=0;
 
-	set_config();
+	//set_config();
 	char errbuf[PCAP_ERRBUF_SIZE];
 	u_int netmask;
 	//char packet_filter[] = "ip and udp";
