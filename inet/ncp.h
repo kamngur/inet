@@ -30,10 +30,15 @@ typedef struct uuid {
 /* 
 * NCP message types definitions
 */
-#define NCP_REGISTER	0x52475354 //RGST /*register*/
-#define NCP_DATA		0x44415441 //DATA //data
-#define NCP_RESULT		0x52534c54 //RSLT //result
-#define NCP_PROGGRES	0x50424752 //PRGR //proggress
+//#define NCP_REGISTER	0x52475354 //RGST /*register*/
+//#define NCP_DATA		0x44415441 //DATA //data
+//#define NCP_RESULT		0x52534c54 //RSLT //result
+//#define NCP_PROGGRES	0x50424752 //PRGR //proggress
+
+#define NCP_REGISTER	0x54534752 // 52475354 //RGST /*register*/
+#define NCP_DATA		0x41544144 // 44415441 //DATA //data
+#define NCP_RESULT		0x544c5352 // 52534c54 //RSLT //result
+#define NCP_PROGGRES	0x52474250 // 50424752 //PRGR //proggress
 
 #define NCP_HEADER_SIZE sizeof(ncp_header)
 
@@ -43,7 +48,7 @@ typedef struct ncp_header {
 	__uint32_t ncp_option1;		/*field with options*/
 	__uint32_t ncp_option2;	
 	uuid	ncp_client;			/* UUID of client*/		//(77d68722-bb20-4223-b34d-4bdf2059a731);	
-	uuid	ncp_project;			/* UUID of project/task*/ 
+	uuid	ncp_project;			/* UUID of task*/ 
 	uuid	ncp_task;			/* UUID of project/task*/ 
 }ncp_header;
 
@@ -53,8 +58,7 @@ typedef struct task{
 
 };
 */
-enum state
-{IDLE,PROCESSING,MAX_STATE };
+typedef  enum {START,IDLE,PROCESSING,RESULT,MAX_STATE }state;
 
 
 /*typedef struct npc_client_state{
@@ -66,7 +70,10 @@ enum state
 
 
 
+int ncp_result(void *data, __uint32_t data_len, void *result, __uint32_t result_len  );
+int ncp_register(void *data, __uint32_t data_len );
 
+int ncp_progress(void *data, __uint32_t data_len );
 
 /*
 * Internal ,generic structure to manage processing of received data.

@@ -32,7 +32,7 @@ int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t 
 
 	unsigned int ip_hdr_size = IP_HEADER_SIZE;
 	unsigned int ip_hdr_size2 = 0;
-	__uint32_t m_data_len= pack_len - ETHER_HDR_LEN - 20 - 8;
+	__uint32_t m_data_len= pack_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
 	
 
 	//unsigned int sss = sizeof(ip_header);
@@ -42,8 +42,8 @@ int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t 
 	
 
 	//ether_addr src={0x00,0x01,0x00,0x01,0x00,0x01};
-	ether_addr src = {0x00,0x00,0x00,0x00,0x00,0x00};
-	ether_addr dst = {0x00,0x01,0x00,0x01,0x00,0x01};
+	//ether_addr src = {0x00,0x00,0x00,0x00,0x00,0x00};
+	//ether_addr dst = {0x00,0x01,0x00,0x01,0x00,0x01};
 
 
 
@@ -58,7 +58,7 @@ int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t 
 
 	get_headers((char * )packet_data, &eth,&ip , &udp, &ptr);
 	
-	create_ethernet_header(eth,&src,&dst,ETHER_TYPE_IPV4);
+	create_ethernet_header(eth,get_host_mac(),get_server_mac(),ETHER_TYPE_IPV4);
 	init_ip_header(ip);
 	 ip_hdr_size2 = ip->ip_hl& 0xF;
 	create_udp_header(udp, (in_port_t)8081,(in_port_t)8081,m_data_len,0);
@@ -85,25 +85,27 @@ int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t 
 */
 int filter_packiets(char* packet_data,__uint32_t pack_len)
 {
-//	ncp_datagram* ptr= (ncp_datagram *)packet_data;
+
 	
-	__uint32_t payload_len = 0;
-	__uint32_t offset = 0;
-	__uint32_t packet_len =ETHER_MAX_LEN;
-	__uint16_t flags =0;
+	//__uint32_t payload_len = 0;
+	//__uint32_t offset = 0;
+	//__uint32_t packet_len =ETHER_MAX_LEN;
+	//__uint16_t flags =0;
+	__uint16_t port = 0;
 
 	int u = IP_HDR_VER;
 	void * data_ptr =0;
-	char packet[ETHER_MAX_DIX_LEN];
+
 
 	
 	//ncp_datagram* ptr= &packet;
 	ethernet_header * eth;
 	ip_header * ip;
+	udp_header *udp;
 	ip_address * addres  = get_host_ip();
 	int i;
 
-	get_headers(packet_data, &eth, &ip, 0 ,0);
+	get_headers(packet_data, &eth, &ip, &udp ,0);
 
 	if(eth->ether_type == 0x0608 )
 	{
@@ -114,7 +116,7 @@ int filter_packiets(char* packet_data,__uint32_t pack_len)
 	{
 		return 1;
 	}
-	u = u << 4;
+
 	if( (ip->ip_hl&0xF0) != (IP_HDR_VER<<4))
 	{
 		return 2;
@@ -124,12 +126,18 @@ int filter_packiets(char* packet_data,__uint32_t pack_len)
 		return 3;
 	}
 
-	//i = memcmp( &(ip->ip_dst),sizeof(ip_address),addres,sizeof(ip_address));
+	//i = memcmp(&(ip->ip_dst),addres,sizeof(ip_address));
 	//if(i != 0)
 	//{
-	//	return 3;
+	//	return 4;
 	//}
-	
+	port = swap_uint16(udp ->uh_dport);
+	if( port != get_host_port() );
+	{
+		return 5;
+	}
+	printf("get intresting data");
+
 	//udp_header * udp = (udp_header * )ip + ip->ip_hl*4;
 	//ncp_header * ncp = (ncp_header *) udp + UDP_HEADER_SIZE;
 
