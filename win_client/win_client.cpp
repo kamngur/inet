@@ -69,7 +69,7 @@ void add_crc(unsigned char *ptr,unsigned int tx_len)
 
 }
 
-void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
+extern "C" int TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
 {
 	add_crc(data_ptr,tx_len);
 	if (pcap_sendpacket(adhandle,	// Adapter
@@ -80,7 +80,7 @@ void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
 		fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(adhandle));
 		//return 3;
 	}
-
+	return 0;
 }
 
 
@@ -92,10 +92,11 @@ void send_packiet()
 {
 	char packiet[1502];
 	u_char * ptr=(u_char *)&packiet;
-	int data_len=1502;
-	char data[10]="abcdefgh\0" ;
+	__uint32_t data_len=1502;
+	char data[100]="abcdefgh\0" ;
 	int s= sizeof(ip_header);
-	s = create_packiet((void*)ptr, data_len,(void*) data,8);
+	ncp_register(data,NCP_HEADER_SIZE);
+	s = create_packiet((void*)ptr, data_len,(void*) data,NCP_HEADER_SIZE);
 	add_crc(ptr,data_len);
 	/* Send down the packet */
 	if (pcap_sendpacket(adhandle,	// Adapter

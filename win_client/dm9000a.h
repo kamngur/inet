@@ -98,7 +98,8 @@
 
 
 /*Dummy functions*/
-void TransmitPacket (unsigned char *data_ptr,unsigned int tx_len);
+
+int TransmitPacket (unsigned char *data_ptr,unsigned int tx_len);
 #define ReceivePacket
 
 #define DM9000_init

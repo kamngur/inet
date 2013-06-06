@@ -218,6 +218,10 @@
 					RelativePath="..\inet\udp.c"
 					>
 				</File>
+				<File
+					RelativePath="..\inet\work.c"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -286,6 +290,10 @@
 				</File>
 				<File
 					RelativePath="..\inet\udp_head.h"
+					>
+				</File>
+				<File
+					RelativePath="..\inet\work.h"
 					>
 				</File>
 			</Filter>
