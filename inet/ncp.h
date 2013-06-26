@@ -19,11 +19,11 @@
 */
 
 typedef struct uuid {
-	__uint32_t	time_low;
-	__uint16_t	time_mid;
-	__uint16_t	time_hi_and_version;
-	__uint16_t	sequence;
-	__uint8_t	node[6]; 
+	uint32_t	time_low;
+	uint16_t	time_mid;
+	uint16_t	time_hi_and_version;
+	uint16_t	sequence;
+	uint8_t	node[6]; 
 }uuid;
 
 
@@ -43,10 +43,10 @@ typedef struct uuid {
 #define NCP_HEADER_SIZE sizeof(ncp_header)
 
 typedef struct ncp_header {
-	__uint32_t ncp_comm;		/* communicate */
-	__uint32_t ncp_numb;		/* comm number */
-	__uint32_t ncp_option1;		/*field with options*/
-	__uint32_t ncp_option2;	
+	uint32_t ncp_comm;		/* communicate */
+	uint32_t ncp_numb;		/* comm number */
+	uint32_t ncp_option1;		/*field with options*/
+	uint32_t ncp_option2;	
 	uuid	ncp_client;			/* UUID of client*/		//(77d68722-bb20-4223-b34d-4bdf2059a731);	
 	uuid	ncp_project;			/* UUID of task*/ 
 	uuid	ncp_task;			/* UUID of project/task*/ 
@@ -70,10 +70,10 @@ typedef  enum {START,IDLE,PROCESSING,RESULT,MAX_STATE }state;
 
 
 
-int ncp_result(void *data, __uint32_t data_len, void *result, __uint32_t result_len  );
-int ncp_register(void *data, __uint32_t data_len );
+int ncp_result(void *data, uint32_t data_len, void *result, uint32_t result_len  );
+int ncp_register(void *data, uint32_t data_len );
 
-int ncp_progress(void *data, __uint32_t data_len );
+int ncp_progress(void *data, uint32_t data_len );
 
 /*
 * Internal ,generic structure to manage processing of received data.
@@ -89,7 +89,7 @@ int ncp_progress(void *data, __uint32_t data_len );
 //typedef struct task{
 //	uuid task_uuid;
 //	//void *data;
-//	//__uint16_t data_len;
+//	//uint16_t data_len;
 //	// alloc_data_function_ptr
 //	// dealloc_data_funtion_ptr
 //	// process_funtion_ptr

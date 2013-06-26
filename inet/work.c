@@ -13,11 +13,11 @@ static state current_state = START;
 
 
 unsigned char data[ETHER_MAX_LEN];
-__uint32_t data_size = 0;
+uint32_t data_size = 0;
 
 
 unsigned char result[ETHER_MAX_LEN];
-__uint32_t result_size=0;
+uint32_t result_size=0;
 
 ncp_header m_ncp;
 

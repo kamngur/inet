@@ -86,10 +86,10 @@ void dbg_ip_header(ip_header * ptr)
 	
 }
 
-__uint16_t ip_checksum(const void *buf, size_t hdr_len)
+uint16_t ip_checksum(const void *buf, size_t hdr_len)
 {
 	unsigned long sum = 0;
-	const __uint16_t *ip1;
+	const uint16_t *ip1;
 
 	ip1 = buf;
 	while (hdr_len > 1)
@@ -106,7 +106,7 @@ __uint16_t ip_checksum(const void *buf, size_t hdr_len)
 	return(~sum);
 }
 
-__uint16_t ip_num=0;
+uint16_t ip_num=0;
 
 void init_ip_header(ip_header * ptr)
 {
@@ -134,11 +134,11 @@ void init_ip_header(ip_header * ptr)
 
 
 // ofset in oktets
-void init_ip_fragment_header(ip_header * ptr,__uint16_t flags,__uint16_t offset,__uint16_t len)
+void init_ip_fragment_header(ip_header * ptr,uint16_t flags,uint16_t offset,uint16_t len)
 {
 //ned to swap to net byte order
-	__uint16_t temp1;
-	__uint16_t temp2;
+	uint16_t temp1;
+	uint16_t temp2;
 
 	ip_address *src = get_host_ip();
 	ip_address *dst = get_server_ip();
@@ -166,7 +166,7 @@ void init_ip_fragment_header(ip_header * ptr,__uint16_t flags,__uint16_t offset,
 }
 
 // ofset in oktets
-void modify_ip_fragment_header(ip_header * ptr,__uint16_t flags,__uint16_t offset)
+void modify_ip_fragment_header(ip_header * ptr,uint16_t flags,uint16_t offset)
 {
 //ned to swap to net byte order
 	//ptr->ip_v	= 0x4;

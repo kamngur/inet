@@ -11,8 +11,8 @@
 #include "types.h"
 #include "pack.h"
 
-typedef __uint8_t	in_addr_t;	/* base type for internet address */
-typedef __uint16_t	in_port_t;	/* IP port type */
+typedef uint8_t	in_addr_t;	/* base type for internet address */
+typedef uint16_t	in_port_t;	/* IP port type */
 
 #define IP_HDR_OFFSET 14
 #define IP_HDR_LENGHT_PSEUDOHEADER 16
@@ -62,30 +62,30 @@ typedef __uint16_t	in_port_t;	/* IP port type */
 
 typedef struct ip_address
 {
-	__uint8_t byte1;
-	__uint8_t byte2;
-	__uint8_t byte3;
-	__uint8_t byte4;
+	uint8_t byte1;
+	uint8_t byte2;
+	uint8_t byte3;
+	uint8_t byte4;
 } ip_address;
 
 
 typedef struct ip_header {
 
-	__uint8_t     ip_hl;		/* header length */		/* version */
-	__uint8_t  ip_tos;		/* type of service */
-	__uint16_t ip_len;		/* total length */
-	__uint16_t ip_id;		/* identification */
-	__uint16_t ip_off;		/* flags+ fragment offset field */
+	uint8_t     ip_hl;		/* header length */		/* version */
+	uint8_t  ip_tos;		/* type of service */
+	uint16_t ip_len;		/* total length */
+	uint16_t ip_id;		/* identification */
+	uint16_t ip_off;		/* flags+ fragment offset field */
 #define	IP_RF 0x8000			/* reserved fragment flag */
 #define	IP_DF 0x4000			/* don't fragment flag */
 #define	IP_MF 0x2000			/* more fragments flag */
 #define	IP_OFFMASK 0x1fff		/* mask for fragmenting bits */
-	__uint8_t  ip_ttl;		/* time to live */
-	__uint8_t  ip_proto;			/* protocol */
-	__uint16_t ip_crc;		/* checksum */
+	uint8_t  ip_ttl;		/* time to live */
+	uint8_t  ip_proto;			/* protocol */
+	uint16_t ip_crc;		/* checksum */
 	ip_address ip_src;
 	ip_address ip_dst; /* source and dest address */
-	//__uint32_t ip_options;    /*ip options + padding*/ /*IHL >5*/  /*optional in udp it takes diffrent structure */
+	//uint32_t ip_options;    /*ip options + padding*/ /*IHL >5*/  /*optional in udp it takes diffrent structure */
 }ip_header;
 
 
@@ -97,8 +97,8 @@ void dbg_ip_addres(ip_address *);
 //ip_address get_host_netmask();
 //ip_address get_host_net();
 
-__uint16_t ip_checksum(const void *buf, size_t hdr_len);
+uint16_t ip_checksum(const void *buf, size_t hdr_len);
 void init_ip_header(ip_header * ptr);
-//void create_packiet(void *packiet,__uint32_t pack_len,void * data,__uint32_t data_len);
+//void create_packiet(void *packiet,uint32_t pack_len,void * data,uint32_t data_len);
 
 #endif /* IP_HEADER_H_ */

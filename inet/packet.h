@@ -1,7 +1,9 @@
 #ifndef _PACKET_H_
 #define _PACKET_H_
-#include "types.h"
 
+
+#include "queue.h"
+#include "types.h"
 #include "ethernet_header.h"
 #include "ip_header.h"
 #include "udp_head.h"
@@ -24,17 +26,26 @@
 //	void* ncp_data;
 //}ncp_datagram;
 
+
+typedef struct frame
+{
+	LIST_ENTRY(frame) f_list;
+	uint16_t f_len;
+	uint16_t f_maxlen;
+	void * f_data;
+}frame;
+
 PACKED_STRUCT(ncp_datagram);
 
 /*
 * Simple function to test creation of ethernet/ip/upd/ncp packiet
 */
 
-int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t data_len);
+int create_packiet(void *packet_data,uint32_t pack_len,void * data,uint32_t data_len);
 /*
 *	Function to test fragmentation in ip/udp
 */
-int send_big_data(void * data,__uint16_t data_len);
+int send_big_data(void * data,uint16_t data_len);
 /*
 * Function to get pointers to each header
 */
@@ -42,7 +53,7 @@ void get_headers(char * data, ethernet_header ** eth, ip_header ** ip, udp_heade
 
 
 /*
-* Function to filter packet that aren't IPv4/UPD 
+* Function to filter off packet that aren't IPv4/UPD 
 */
-int filter_packiets(char *packet_data,__uint32_t pack_len);
+int filter_packiets(char *packet_data,uint32_t pack_len);
 #endif

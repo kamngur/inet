@@ -12,9 +12,9 @@
 /*
 * Current number of communicate
 */
-static __uint32_t comm_number=0;
+static uint32_t comm_number=0;
 
-int init_ncp_data(void *data, __uint32_t data_len ,__uint32_t type, __uint32_t option1, __uint32_t option2, uuid * client,uuid * project, uuid * task)
+int init_ncp_data(void *data, uint32_t data_len ,uint32_t type, uint32_t option1, uint32_t option2, uuid * client,uuid * project, uuid * task)
 {
 	ncp_header * hdr = (ncp_header *) data;
 
@@ -35,7 +35,7 @@ int init_ncp_data(void *data, __uint32_t data_len ,__uint32_t type, __uint32_t o
 	return 0;
 }
 
-int ncp_register(void *data, __uint32_t data_len )
+int ncp_register(void *data, uint32_t data_len )
 {
 	return init_ncp_data(data,data_len,NCP_REGISTER,0,0,get_host_uuid(),get_project_uuid(),get_task_uuid());
 
@@ -44,7 +44,7 @@ int ncp_register(void *data, __uint32_t data_len )
 /*
 * Creates result message in 
 */
-int ncp_result(void *data, __uint32_t data_len, void *result, __uint32_t result_len  )
+int ncp_result(void *data, uint32_t data_len, void *result, uint32_t result_len  )
 {
 
 	 int i = init_ncp_data(data,data_len,NCP_RESULT,0,0,get_host_uuid(),get_project_uuid(),get_task_uuid());
@@ -52,7 +52,7 @@ int ncp_result(void *data, __uint32_t data_len, void *result, __uint32_t result_
 
 }
 
-int ncp_progress(void *data, __uint32_t data_len )
+int ncp_progress(void *data, uint32_t data_len )
 {
 
 	int i = init_ncp_data(data,data_len,NCP_PROGGRES,1,2,get_host_uuid(),get_project_uuid(),get_task_uuid());

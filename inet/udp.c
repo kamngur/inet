@@ -15,7 +15,7 @@
 
 void dbg_udp_packet(udp_header *packet, ip_address ip_src, ip_address ip_dst)
 {
-	__uint16_t len = ntohs(packet->uh_ulen) - sizeof(udp_header);
+	uint16_t len = ntohs(packet->uh_ulen) - sizeof(udp_header);
 	int i;
 
 	printf("\nUDP packet received (%u bytes of data)"
@@ -40,7 +40,7 @@ void dbg_udp_packet(udp_header *packet, ip_address ip_src, ip_address ip_dst)
 */
 
 
-void create_udp_header(udp_header *ptr , in_port_t src , in_port_t dst,__uint16_t len,__uint16_t crc)
+void create_udp_header(udp_header *ptr , in_port_t src , in_port_t dst,uint16_t len,uint16_t crc)
 {
 	ptr->uh_dport	= swap_uint16(dst);
 	ptr->uh_sport	= swap_uint16(src);
@@ -49,12 +49,12 @@ void create_udp_header(udp_header *ptr , in_port_t src , in_port_t dst,__uint16_
 
 }
 
-__uint16_t udp_checksum(const void *buff, __uint32_t len, ip_address *src_addr, ip_address *dest_addr)
+uint16_t udp_checksum(const void *buff, uint32_t len, ip_address *src_addr, ip_address *dest_addr)
 {
-	const __uint16_t *buf=buff;
-	__uint16_t *ip_src=(void *)src_addr, *ip_dst=(void *)dest_addr;
-	__uint32_t sum;
-	__uint32_t length=len;
+	const uint16_t *buf=buff;
+	uint16_t *ip_src=(void *)src_addr, *ip_dst=(void *)dest_addr;
+	uint32_t sum;
+	uint32_t length=len;
 
 	// Calculate the sum						//
 	sum = 0;
@@ -68,7 +68,7 @@ __uint16_t udp_checksum(const void *buff, __uint32_t len, ip_address *src_addr, 
 
 	if ( len & 1 )
 		// Add the padding if the packet lenght is odd		//
-		sum += *((__uint8_t *)buf);
+		sum += *((uint8_t *)buf);
 
 	// Add the pseudo-header					//
 	sum += *(ip_src++);
@@ -85,16 +85,16 @@ __uint16_t udp_checksum(const void *buff, __uint32_t len, ip_address *src_addr, 
 		sum = (sum & 0xFFFF) + (sum >> 16);
 
 	// Return the one's complement of sum				//
-	return ( (__uint16_t)(~sum)  );
+	return ( (uint16_t)(~sum)  );
 }
 
 
-__uint16_t udp_sum_calc( __uint16_t buff[],__uint16_t len_udp, __uint16_t src_addr[],__uint16_t dest_addr[] )
+uint16_t udp_sum_calc( uint16_t buff[],uint16_t len_udp, uint16_t src_addr[],uint16_t dest_addr[] )
 {
-	__uint16_t prot_udp=17;
-	__uint16_t padd=0;
-	__uint16_t word16;
-	__uint32_t sum;	
+	uint16_t prot_udp=17;
+	uint16_t padd=0;
+	uint16_t word16;
+	uint32_t sum;	
 	unsigned i;
 
 	// Find out if the length of data is even or odd number. If odd,
@@ -132,5 +132,5 @@ __uint16_t udp_sum_calc( __uint16_t buff[],__uint16_t len_udp, __uint16_t src_ad
 	// Take the one's complement of sum
 	sum = ~sum;
 
-	return ((__uint16_t) sum);
+	return ((uint16_t) sum);
 }

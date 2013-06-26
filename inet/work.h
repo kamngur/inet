@@ -10,7 +10,7 @@
 
 
 extern unsigned char data[ETHER_MAX_LEN];
-extern __uint32_t data_size = 0;
+extern uint32_t data_size = 0;
 
 
 

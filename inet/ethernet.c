@@ -48,7 +48,7 @@ void dbg_ethernet_header(ethernet_header * ptr)
 }
 
 
-void create_ethernet_header(ethernet_header *ptr , ether_addr *src , ether_addr *dst , __uint16_t type)
+void create_ethernet_header(ethernet_header *ptr , ether_addr *src , ether_addr *dst , uint16_t type)
 {
 	ptr->eth_dest_addr	= *dst;
 	ptr->eth_src_addr	= *src;
@@ -56,10 +56,10 @@ void create_ethernet_header(ethernet_header *ptr , ether_addr *src , ether_addr 
 }
 
 
-__uint32_t ethernet_checksum(const void *buf, size_t hdr_len)
+uint32_t ethernet_checksum(const void *buf, size_t hdr_len)
 {
 	unsigned long sum = 0;
-	const __uint16_t *ip1;
+	const uint16_t *ip1;
 
 	ip1 = buf;
 	while (hdr_len > 1)

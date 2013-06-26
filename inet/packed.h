@@ -26,23 +26,23 @@
          //#define htonl(n) (n)
  //#endif
 
-__uint16_t swap_uint16( __uint16_t   ); 
+uint16_t swap_uint16( uint16_t   ); 
 
 
 //! Byte swap short
- __int16_t swap_int16(  __int16_t   ); 
+ int16_t swap_int16(  int16_t   ); 
 
 //! Byte swap unsigned int
-__uint32_t swap_uint32( __uint32_t   );
+uint32_t swap_uint32( uint32_t   );
 
 
 //! Byte swap int
- __int32_t swap_int32(  __int32_t   );
+ int32_t swap_int32(  int32_t   );
 
- __int64_t swap_int64(  __int64_t   );
+ int64_t swap_int64(  int64_t   );
 
 
-__uint64_t swap_uint64( __uint64_t   );
+uint64_t swap_uint64( uint64_t   );
 
 
 #endif
