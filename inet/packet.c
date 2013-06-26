@@ -4,14 +4,16 @@
  *  Created on: 15-01-2013
  *      Author: Kangur
  */
-
+#include <dm9000a.h>
 #include "packet.h"
 #include "bits_swap.h"
 #include "types.h"
 #include "udp_head.h"
 #include "ip_header.h"
 #include "ethernet_header.h"
-#include <dm9000a.h>
+#include "queue.h"
+//#include "packet.h"
+
 
 //! This is the IP address of this host (expressed in network format).
 //static ip_address host_ip = {192,168,10,101};
@@ -19,10 +21,86 @@
 //! This is the IP netmask of this host (expressed in network format).
 //static ip_address host_netmask =  {0,0,0,0};
 
+LIST_HEAD(free_frames,frame) free_frames;
+LIST_HEAD(rx_frames,frame) rx_frames;
+
+void init_lists()
+{
+	int i = 0;
+	frame * ptr;
+	free_frames.lh_first = NULL;
+	rx_frames.lh_first = NULL;
+//	LIST_HEAD_INITIALIZER((&free_frames));
+//	LIST_HEAD_INITIALIZER((&rx_frames));
+
+	for(i =0; i<64; i++)
+	{
+		ptr = malloc(sizeof(frame));
+		if(ptr != 0)
+		{
+			ptr->f_maxlen = ETHER_MAX_LEN;
+			ptr->f_data = malloc(ETHER_MAX_LEN);
+			ptr->f_len =0;
+			LIST_INSERT_HEAD(&free_frames,ptr,f_list);
+
+		}
+		else
+		{
+			printf("init_list: Error can't alloc frames");
+		}
+	}
+}
+
+void release_frame(frame *ptr)
+{
+	frame * m_ptr;
+	if(ptr == 0)
+		return;
+
+	ptr->f_len = 0;
+	//if(LIST_NEXT(ptr,f_list) != 0)
+	LIST_REMOVE(ptr,f_list);
+	LIST_INSERT_HEAD(&free_frames,ptr,f_list);
+}
+
+frame * get_free_frame()
+{
+    frame * ptr = LIST_FIRST(&free_frames);
+
+	if(ptr == 0)
+	{
+		ptr = malloc(sizeof(frame));
+			if(ptr != 0)
+			{
+				ptr->f_maxlen = ETHER_MAX_LEN;
+				ptr->f_data = malloc(ETHER_MAX_LEN);
+				ptr->f_len =0;
+
+			}
+			else
+			{
+				printf("get_frame: Error can't alloc frames");
+			}
+	}
+	else
+	{
+		LIST_REMOVE(ptr,f_list);
+	}
+
+	return ptr;
+}
+
+frame* get_rx_frame()
+{
+	frame* ptr = LIST_FIRST(&rx_frames);
+
+	return ptr;
+}
 
 
 
-int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t data_len)
+
+int create_packiet(void *packet_data,uint32_t pack_len,void * data,uint32_t data_len)
 {
 	char* ptr= (char *)packet_data;
 	ethernet_header * eth;
@@ -32,13 +110,13 @@ int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t 
 
 	unsigned int ip_hdr_size = IP_HEADER_SIZE;
 	unsigned int ip_hdr_size2 = 0;
-	__uint32_t m_data_len= pack_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
+	uint32_t m_data_len= pack_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
 	
 
 	//unsigned int sss = sizeof(ip_header);
-	//__uint8_t *my_ptr=0;
-	//__uint16_t udp_crc=0;
-	//__uint32_t eth_crc=0;
+	//uint8_t *my_ptr=0;
+	//uint16_t udp_crc=0;
+	//uint32_t eth_crc=0;
 	
 
 	//ether_addr src={0x00,0x01,0x00,0x01,0x00,0x01};
@@ -83,15 +161,15 @@ int create_packiet(void *packet_data,__uint32_t pack_len,void * data,__uint32_t 
 *	- must be UDP (fragmented)
 *
 */
-int filter_packiets(char* packet_data,__uint32_t pack_len)
+int filter_packiets(char* packet_data,uint32_t pack_len)
 {
 
 	
-	//__uint32_t payload_len = 0;
-	//__uint32_t offset = 0;
-	//__uint32_t packet_len =ETHER_MAX_LEN;
-	//__uint16_t flags =0;
-	__uint16_t port = 0;
+	//uint32_t payload_len = 0;
+	//uint32_t offset = 0;
+	//uint32_t packet_len =ETHER_MAX_LEN;
+	//uint16_t flags =0;
+	uint16_t port = 0;
 
 	int u = IP_HDR_VER;
 	void * data_ptr =0;
@@ -147,17 +225,17 @@ int filter_packiets(char* packet_data,__uint32_t pack_len)
 }
 
 /*
-int  create_udp_datagram(void *packet_data,__uint32_t pack_len,void * payload,__uint32_t data_len)
+int  create_udp_datagram(void *packet_data,uint32_t pack_len,void * payload,uint32_t data_len)
 {
 	ncp_datagram* ptr= packet_data;
 	ethernet_header * eth =  &(ptr->ethernet);
 	ip_header * ip =(ip_header*) &(ptr->ip);
 	udp_header * udp =(udp_header *) &(ptr->payload);
 	unsigned int sss = sizeof(ip_header);
-	__uint8_t *my_ptr=0;
-	__uint16_t udp_crc=0;
-	__uint32_t eth_crc=0;
-	__uint32_t m_data_len= pack_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
+	uint8_t *my_ptr=0;
+	uint16_t udp_crc=0;
+	uint32_t eth_crc=0;
+	uint32_t m_data_len= pack_len - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE;
 
 	//ether_addr src={0x00,0x01,0x00,0x01,0x00,0x01};
 	ether_addr src={0x00,0x01,0x00,0x01,0x00,0x01};
@@ -177,10 +255,10 @@ int  create_udp_datagram(void *packet_data,__uint32_t pack_len,void * payload,__
 
 	eth_crc = ethernet_checksum(ptr,pack_len);
 	my_ptr = ptr + pack_len -4;
-	*my_ptr++=(__uint8_t)((eth_crc & 0xff000000)>>24);
-	*my_ptr++=(__uint8_t)((eth_crc & 0x00ff0000)>>16);
-	*my_ptr++=(__uint8_t)((eth_crc & 0x0000ff00)>>8);
-	*my_ptr++=(__uint8_t)((eth_crc & 0x000000ff));
+	*my_ptr++=(uint8_t)((eth_crc & 0xff000000)>>24);
+	*my_ptr++=(uint8_t)((eth_crc & 0x00ff0000)>>16);
+	*my_ptr++=(uint8_t)((eth_crc & 0x0000ff00)>>8);
+	*my_ptr++=(uint8_t)((eth_crc & 0x000000ff));
 
 
 
@@ -188,12 +266,12 @@ int  create_udp_datagram(void *packet_data,__uint32_t pack_len,void * payload,__
 */
 
 
-int send_big_data(void * data,__uint16_t data_len)
+int send_big_data(void * data,uint16_t data_len)
 {
-	__uint32_t payload_len = 0;
-	__uint32_t offset = 0;
-	__uint32_t packet_len =ETHER_MAX_LEN;
-	__uint16_t flags =0;
+	uint32_t payload_len = 0;
+	uint32_t offset = 0;
+	uint32_t packet_len =ETHER_MAX_LEN;
+	uint16_t flags =0;
 	void * data_ptr =0;
 	char packet[ETHER_MAX_DIX_LEN];
 	//ncp_datagram* ptr= &packet;
@@ -202,7 +280,7 @@ int send_big_data(void * data,__uint16_t data_len)
 	udp_header * udp ;
 	ncp_header * ncp;
 	
-	__uint16_t pack_payload_start;
+	uint16_t pack_payload_start;
 	ether_addr src = {0x00,0x01,0x00,0x01,0x00,0x01};
 	ether_addr dst = {0x00,0x00,0x00,0x00,0x00,0x00};
 
@@ -238,7 +316,7 @@ int send_big_data(void * data,__uint16_t data_len)
 			ip->ip_off = swap_uint16((flags && 0xE000)|(offset & 0x1FFF));
 			data_ptr =  udp;
 		}
-	//	memcpy(data_ptr,((__uint8_t)offset+offset),payload_len);
+	//	memcpy(data_ptr,((uint8_t)offset+offset),payload_len);
 
 		offset += payload_len/8;
 	//	TransmitPacket(ptr,ETHER_MAX_LEN); //TODO
