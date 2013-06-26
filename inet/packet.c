@@ -30,6 +30,8 @@ void init_lists()
 	frame * ptr;
 	free_frames.lh_first = NULL;
 	rx_frames.lh_first = NULL;
+	LIST_INIT(&free_frames);
+	LIST_INIT(&rx_frames)
 //	LIST_HEAD_INITIALIZER((&free_frames));
 //	LIST_HEAD_INITIALIZER((&rx_frames));
 
@@ -56,10 +58,11 @@ void release_frame(frame *ptr)
 	frame * m_ptr;
 	if(ptr == 0)
 		return;
+	
 
+	LIST_REMOVE(ptr,f_list);
 	ptr->f_len = 0;
 	//if(LIST_NEXT(ptr,f_list) != 0)
-	LIST_REMOVE(ptr,f_list);
 	LIST_INSERT_HEAD(&free_frames,ptr,f_list);
 }
 
@@ -96,6 +99,13 @@ frame* get_rx_frame()
 
 	return ptr;
 }
+
+void add_rx_frame( frame * ptr)
+{
+	LIST_REMOVE(ptr,f_list);
+	LIST_INSERT_HEAD(&rx_frames,ptr,f_list)
+}
+
 
 
 
