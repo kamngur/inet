@@ -46,15 +46,15 @@ void init_lists();
 */
 void release_frame(frame *ptr);
 /*
-* Gets first 
+* Gets first element form free queue
 */
 frame * get_free_frame();
 /*
-*
+* gets firs recived frame
 */
 frame* get_rx_frame();
 /*
-*
+* Adds frame at queue end (tail)
 */
 void add_rx_frame( frame * ptr);
 
