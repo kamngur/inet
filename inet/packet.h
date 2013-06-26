@@ -29,13 +29,35 @@
 
 typedef struct frame
 {
-	LIST_ENTRY(frame) f_list;
+	TAILQ_ENTRY(frame) f_tail;
 	uint16_t f_len;
 	uint16_t f_maxlen;
 	void * f_data;
 }frame;
 
-PACKED_STRUCT(ncp_datagram);
+//PACKED_STRUCT(ncp_datagram);
+
+/*
+* Inits queues (free and rx queue) and adds 70 element to free queue
+*/
+void init_lists();
+/*
+* Removes frame from current queu and adds to free frames queue
+*/
+void release_frame(frame *ptr);
+/*
+* Gets first 
+*/
+frame * get_free_frame();
+/*
+*
+*/
+frame* get_rx_frame();
+/*
+*
+*/
+void add_rx_frame( frame * ptr);
+
 
 /*
 * Simple function to test creation of ethernet/ip/upd/ncp packiet
@@ -56,4 +78,7 @@ void get_headers(char * data, ethernet_header ** eth, ip_header ** ip, udp_heade
 * Function to filter off packet that aren't IPv4/UPD 
 */
 int filter_packiets(char *packet_data,uint32_t pack_len);
+
+
+
 #endif

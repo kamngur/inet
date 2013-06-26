@@ -21,21 +21,20 @@
 //! This is the IP netmask of this host (expressed in network format).
 //static ip_address host_netmask =  {0,0,0,0};
 
-LIST_HEAD(free_frames,frame) free_frames;
-LIST_HEAD(rx_frames,frame) rx_frames;
+TAILQ_HEAD(free_frames,frame) free_frames;
+TAILQ_HEAD(rx_frames,frame) rx_frames;
 
 void init_lists()
 {
 	int i = 0;
 	frame * ptr;
-	free_frames.lh_first = NULL;
-	rx_frames.lh_first = NULL;
-	LIST_INIT(&free_frames);
-	LIST_INIT(&rx_frames)
+
+	TAILQ_INIT(&free_frames);
+	TAILQ_INIT(&rx_frames);
 //	LIST_HEAD_INITIALIZER((&free_frames));
 //	LIST_HEAD_INITIALIZER((&rx_frames));
 
-	for(i =0; i<64; i++)
+	for(i =0; i<65; i++)
 	{
 		ptr = malloc(sizeof(frame));
 		if(ptr != 0)
@@ -43,12 +42,12 @@ void init_lists()
 			ptr->f_maxlen = ETHER_MAX_LEN;
 			ptr->f_data = malloc(ETHER_MAX_LEN);
 			ptr->f_len =0;
-			LIST_INSERT_HEAD(&free_frames,ptr,f_list);
+			TAILQ_INSERT_HEAD(&free_frames,ptr,f_tail);
 
 		}
 		else
 		{
-			printf("init_list: Error can't alloc frames");
+			printf("init_TAILQ: Error can't alloc frames");
 		}
 	}
 }
@@ -60,15 +59,15 @@ void release_frame(frame *ptr)
 		return;
 	
 
-	LIST_REMOVE(ptr,f_list);
+	//TAILQ_REMOVE(&rx_frames,ptr,f_tail);
 	ptr->f_len = 0;
-	//if(LIST_NEXT(ptr,f_list) != 0)
-	LIST_INSERT_HEAD(&free_frames,ptr,f_list);
+	//if(LIST_NEXT(ptr,f_tail) != 0)
+	TAILQ_INSERT_HEAD(&free_frames,ptr,f_tail);
 }
 
 frame * get_free_frame()
 {
-    frame * ptr = LIST_FIRST(&free_frames);
+    frame * ptr = TAILQ_FIRST(&free_frames);
 
 	if(ptr == 0)
 	{
@@ -87,23 +86,30 @@ frame * get_free_frame()
 	}
 	else
 	{
-		LIST_REMOVE(ptr,f_list);
+		TAILQ_REMOVE(&free_frames,ptr,f_tail);
 	}
 
 	return ptr;
 }
 
+
+/**
+ Add frame to rx_frame queue (
+*/
 frame* get_rx_frame()
 {
-	frame* ptr = LIST_FIRST(&rx_frames);
-
+	frame* ptr = TAILQ_FIRST(&rx_frames);
+	TAILQ_REMOVE(&rx_frames,ptr,f_tail);
 	return ptr;
 }
+/**
+ Add frame to rx_frame queue (
+*/
 
 void add_rx_frame( frame * ptr)
 {
-	LIST_REMOVE(ptr,f_list);
-	LIST_INSERT_HEAD(&rx_frames,ptr,f_list)
+	//TAILQ_REMOVE(ptr,f_tail);
+	TAILQ_INSERT_TAIL(&rx_frames,ptr,f_tail);
 }
 
 
