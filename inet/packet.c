@@ -231,7 +231,7 @@ int filter_packiets(char* packet_data,uint32_t pack_len)
 
 	get_headers(packet_data, &eth, &ip, &udp ,0);
 
-	if(eth->ether_type == 0x0608 )
+	if(eth->ether_type == 0x0608 ) //ARP
 	{
 		return -1 ;//if arp its ok
 	}

@@ -19,5 +19,5 @@ ncp_header m_ncp;
 
 
 
-int manage_ncp(ncp_header * in_ncp)
+int manage_ncp(ncp_header * in_ncp);
 #endif
