@@ -76,6 +76,7 @@ void get_headers(char * data, ethernet_header ** eth, ip_header ** ip, udp_heade
 
 /*
 * Function to filter off packet that aren't IPv4/UPD 
+* OBSOLETE
 */
 int filter_packiets(char *packet_data,uint32_t pack_len);
 

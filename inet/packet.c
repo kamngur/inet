@@ -23,6 +23,11 @@
 
 TAILQ_HEAD(free_frames,frame) free_frames;
 TAILQ_HEAD(rx_frames,frame) rx_frames;
+#ifdef _DEBUG
+uint32_t frames_count = 0;
+int32_t rx_count = 0;
+int32_t free_count = 0;
+#endif
 
 void init_lists()
 {
@@ -42,12 +47,18 @@ void init_lists()
 			ptr->f_maxlen = ETHER_MAX_LEN;
 			ptr->f_data = malloc(ETHER_MAX_LEN);
 			ptr->f_len =0;
+#ifdef _DEBUG
+			frames_count++;
+			free_count++;
+
+#endif 
 			TAILQ_INSERT_HEAD(&free_frames,ptr,f_tail);
+			
 
 		}
 		else
 		{
-			printf("init_TAILQ: Error can't alloc frames");
+			printf("%s: Error can't alloc frames\n",__FUNCTION__);
 		}
 	}
 }
@@ -57,11 +68,11 @@ void release_frame(frame *ptr)
 	frame * m_ptr;
 	if(ptr == 0)
 		return;
-	
 
-	//TAILQ_REMOVE(&rx_frames,ptr,f_tail);
 	ptr->f_len = 0;
-	//if(LIST_NEXT(ptr,f_tail) != 0)
+#ifdef _DEBUG
+	free_count++;
+#endif
 	TAILQ_INSERT_HEAD(&free_frames,ptr,f_tail);
 }
 
@@ -77,15 +88,21 @@ frame * get_free_frame()
 				ptr->f_maxlen = ETHER_MAX_LEN;
 				ptr->f_data = malloc(ETHER_MAX_LEN);
 				ptr->f_len =0;
-
+#ifdef _DEBUG
+				frames_count++;
+#endif
+				printf("%s: Allocating new frame\n",__FUNCTION__);
 			}
 			else
 			{
-				printf("get_frame: Error can't alloc frames");
+				printf("%s: Error can't alloc frames\n",__FUNCTION__);
 			}
 	}
 	else
 	{
+#ifdef _DEBUG
+		free_count--;
+#endif
 		TAILQ_REMOVE(&free_frames,ptr,f_tail);
 	}
 
@@ -99,7 +116,15 @@ frame * get_free_frame()
 frame* get_rx_frame()
 {
 	frame* ptr = TAILQ_FIRST(&rx_frames);
+	if(ptr ==0)
+	{
+		printf("%s: Error no rx frames to get\n",__FUNCTION__);
+	}
 	TAILQ_REMOVE(&rx_frames,ptr,f_tail);
+	
+#ifdef _DEBUG
+	rx_count--;
+#endif
 	return ptr;
 }
 /**
@@ -110,6 +135,11 @@ void add_rx_frame( frame * ptr)
 {
 	//TAILQ_REMOVE(ptr,f_tail);
 	TAILQ_INSERT_TAIL(&rx_frames,ptr,f_tail);
+
+#ifdef _DEBUG
+	rx_count++;
+#endif
+	printf("%s: added frame \n",__FUNCTION__);
 }
 
 
@@ -206,7 +236,7 @@ int filter_packiets(char* packet_data,uint32_t pack_len)
 		return -1 ;//if arp its ok
 	}
 
-	if (eth->ether_type != 0x0008 ) //ethernet 
+	if (eth->ether_type != 0x0008 ) //ethernet //swap(ETHER_TYPE) 
 	{
 		return 1;
 	}
@@ -225,11 +255,11 @@ int filter_packiets(char* packet_data,uint32_t pack_len)
 	//{
 	//	return 4;
 	//}
-	port = swap_uint16(udp ->uh_dport);
-	if( port != get_host_port() );
-	{
-		return 5;
-	}
+	////port = swap_uint16(udp ->uh_dport);
+	////if( port != get_host_port() );
+	////{
+	////	return 5;
+	////}
 	printf("get intresting data");
 
 	//udp_header * udp = (udp_header * )ip + ip->ip_hl*4;

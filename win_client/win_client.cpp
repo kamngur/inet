@@ -119,8 +119,8 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	u_int ip_len;
 	u_short sport,dport;
 	time_t local_tv_sec;
-	int val =0;
-
+	int val = 0;
+	frame * m_frame = 0;
 
 	/*
 	 * unused parameter
@@ -137,12 +137,22 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 
 	val = filter_packiets((char *)pkt_data, header->len);
 
-	
-
 	if (val != 0)
 	{
 		
 		return ;
+	}
+	else
+	{
+		m_frame = get_free_frame();
+		if (m_frame == 0)
+			return;
+
+		m_frame->f_len = header->len;
+		memcpy(m_frame->f_data,pkt_data,header->len);
+
+		add_rx_frame(m_frame);
+		m_frame = 0;
 	}
 	get_headers((char *)pkt_data,&eth,&ih,&uh,0);
 
@@ -186,14 +196,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	pcap_if_t *d;
 	int inum;
 	int i=0;
-
+	
 	//set_config();
 	char errbuf[PCAP_ERRBUF_SIZE];
 	u_int netmask;
 	//char packet_filter[] = "ip and udp";
 	char packet_filter[] = "";
 	struct bpf_program fcode;
-	
+	init_lists();
 	/* Retrieve the device list */
 	if(pcap_findalldevs(&alldevs, errbuf) == -1)
 	{
