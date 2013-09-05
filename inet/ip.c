@@ -118,7 +118,7 @@ void init_ip_header(ip_header * ptr)
 	//ptr->ip_v	= 0x4;
 	ptr->ip_tos	= 0x00;
 	ptr->ip_len = 181;
-	ptr->ip_id	= ip_num++;
+	ptr->ip_id	= swap_uint16(ip_num++);
 	ptr->ip_off =swap_uint16(IP_DF);
 	ptr->ip_ttl	= 0x80;  // 128 <-> local  net
 	ptr->ip_proto = IPPROTO_UDP;
@@ -127,7 +127,6 @@ void init_ip_header(ip_header * ptr)
 	ptr->ip_dst = *dst; //localhost
 //	ptr->ip_options = 0x0;
 	
-	//ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));
 
 
 }
@@ -147,7 +146,7 @@ void init_ip_fragment_header(ip_header * ptr,uint16_t flags,uint16_t offset,uint
 	//ptr->ip_v	= 0x4;
 	ptr->ip_tos	= 0x00;
 	ptr->ip_len = 181;
-	ptr->ip_id	= ip_num++;
+	ptr->ip_id	= swap_uint16(ip_num++);
 	temp1 = swap_uint16(flags);
 	temp2 = swap_uint16(offset);
 	//ptr->ip_off =(swap_uint16(flags)&0x07)|(swap_uint16(offset)&0xF8); //TODO
@@ -160,7 +159,7 @@ void init_ip_fragment_header(ip_header * ptr,uint16_t flags,uint16_t offset,uint
 	ptr->ip_dst = *dst; //localhost
 //	ptr->ip_options = 0x0;
 
-	//ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));
+	ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));
 
 
 }
@@ -175,6 +174,7 @@ void modify_ip_fragment_header(ip_header * ptr,uint16_t flags,uint16_t offset)
 	ptr->ip_id	= ip_num++;
 	ptr->ip_off =(swap_uint16(flags)&0x07)||(swap_uint16(offset)&0xF8);
 	ptr->ip_ttl	= 0x80;  // 128 <-> local  net
+	ptr->ip_crc = 0;
 
 
 }

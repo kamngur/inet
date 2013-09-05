@@ -7,7 +7,7 @@
 
 #include "ncp.h"
 #include "packet.h"
-#include "dm9000a.h"
+#include "../dm9000a.h"
 
 static state current_state = START;
 
@@ -48,7 +48,7 @@ int manage_ncp(ncp_header * in_ncp)
 		if(ncp->ncp_comm == NCP_DATA)
 		{
 			i = memcmp(&(ncp->ncp_client),get_host_uuid(),sizeof(uuid));
-			if(i = 0)
+			if(i == 0)
 				current_state = PROCESSING ;
 		}
 

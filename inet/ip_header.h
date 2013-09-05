@@ -85,7 +85,7 @@ typedef struct ip_header {
 	uint16_t ip_crc;		/* checksum */
 	ip_address ip_src;
 	ip_address ip_dst; /* source and dest address */
-	//uint32_t ip_options;    /*ip options + padding*/ /*IHL >5*/  /*optional in udp it takes diffrent structure */
+	//uint8_t ip_options;    /*ip options + padding*/ /*IHL >5*/  /*optional in udp it takes diffrent structure */
 }ip_header;
 
 

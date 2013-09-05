@@ -10,13 +10,13 @@
 #include "ncp.h"
 
 static ip_address host_ip = {192,168,1,2};
-static ip_address server_ip = {192,168,1,1};
+static ip_address server_ip = {192,168,0,23};
 
 static in_port_t host_port = 5556;
 static in_port_t server_port = 5555;
 
 static ether_addr host_mac = { 0x01, 0x60, 0x6E, 0x11, 0x01, 0x1F  };
-static ether_addr server_mac = { 0x5c, 0xf9, 0xdd, 0x53, 0x07, 0x34  };
+static ether_addr server_mac = { 0x00, 0x0c, 0x29, 0x58, 0xb8, 0x30  };
 static ip_address localhost = {127,0,0,1};
 //! This is the IP netmask of this host (expressed in network format).
 static ip_address host_netmask =  {255,255,0,0};
@@ -27,14 +27,14 @@ static uuid project_uuid ={ 0xab3a641e, 0xDE02, 0xDE02, 0xDE02, { 0x4, 0xf2, 0xd
 static uuid task_uuid ={ 0xab1a642a, 0xDE02, 0xDE02, 0xDE02, { 0x4, 0xf2, 0xd9, 0xf7, 0x8e, 0x45 } };
 // {AA3E630E-6600-424d-87FE-04F2D9F78E45}
 
-in_port_t get_host_port()
+ in_port_t *get_host_port()
 {
-	return host_port;
+	return &host_port;
 }
 
-in_port_t get_server_port()
+ in_port_t *get_server_port()
 {
-	return server_port;
+	return &server_port;
 }
 
 void set_config()

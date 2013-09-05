@@ -15,6 +15,10 @@
 //#include "packet.h"
 
 
+#ifndef _DEBUG
+#define _DEBUG
+#endif
+
 //! This is the IP address of this host (expressed in network format).
 //static ip_address host_ip = {192,168,10,101};
 //static ip_address localhost = {127,0,0,1};
@@ -29,10 +33,13 @@ int32_t rx_count = 0;
 int32_t free_count = 0;
 #endif
 
+
+
 void init_lists()
 {
 	int i = 0;
 	frame * ptr;
+
 
 	TAILQ_INIT(&free_frames);
 	TAILQ_INIT(&rx_frames);
@@ -73,11 +80,12 @@ void release_frame(frame *ptr)
 #ifdef _DEBUG
 	free_count++;
 #endif
-	TAILQ_INSERT_HEAD(&free_frames,ptr,f_tail);
+	TAILQ_INSERT_TAIL(&free_frames,ptr,f_tail);
 }
 
 frame * get_free_frame()
 {
+
     frame * ptr = TAILQ_FIRST(&free_frames);
 
 	if(ptr == 0)
@@ -115,10 +123,12 @@ frame * get_free_frame()
 */
 frame* get_rx_frame()
 {
+
 	frame* ptr = TAILQ_FIRST(&rx_frames);
 	if(ptr ==0)
 	{
 		printf("%s: Error no rx frames to get\n",__FUNCTION__);
+		return 0;
 	}
 	TAILQ_REMOVE(&rx_frames,ptr,f_tail);
 	
@@ -171,13 +181,13 @@ int create_packiet(void *packet_data,uint32_t pack_len,void * data,uint32_t data
 
 
 
-	if(data_len > pack_len - ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE -ETHER_CRC_LEN)
+	if(data_len > pack_len - ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE )
 	{
-		m_data_len = pack_len - ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE -ETHER_CRC_LEN;
+		m_data_len = pack_len - ETHER_HDR_LEN-IP_HEADER_SIZE-UDP_HEADER_SIZE ;
 	}
 	else
 	{
-		m_data_len = data_len;
+		m_data_len = data_len-UDP_HEADER_SIZE;
 	}
 
 	get_headers((char * )packet_data, &eth,&ip , &udp, &ptr);
@@ -185,7 +195,13 @@ int create_packiet(void *packet_data,uint32_t pack_len,void * data,uint32_t data
 	create_ethernet_header(eth,get_host_mac(),get_server_mac(),ETHER_TYPE_IPV4);
 	init_ip_header(ip);
 	 ip_hdr_size2 = ip->ip_hl& 0xF;
-	create_udp_header(udp, (in_port_t)8081,(in_port_t)8081,m_data_len,0);
+	 int aaaa = IP_HDR_LENGHT;
+	 int aaaa2 = IP_HEADER_SIZE;
+	 int bbb = UDP_HEADER_SIZE;
+	 ip->ip_len = swap_int16(IP_HEADER_SIZE + UDP_HEADER_SIZE + m_data_len ); // why ??
+	 ip->ip_crc =ip_checksum (ip,sizeof(ip_header));
+
+	create_udp_header(udp, (in_port_t) get_host_port(),(in_port_t) get_server_port(),m_data_len,0);
 
 	memcpy(ptr,data,(size_t)m_data_len);
 
@@ -260,7 +276,7 @@ int filter_packiets(char* packet_data,uint32_t pack_len)
 	////{
 	////	return 5;
 	////}
-	printf("get intresting data");
+	printf("get intresting data\n");
 
 	//udp_header * udp = (udp_header * )ip + ip->ip_hl*4;
 	//ncp_header * ncp = (ncp_header *) udp + UDP_HEADER_SIZE;

@@ -186,9 +186,12 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 
 }
 
-
-
 int _tmain(int argc, _TCHAR* argv[])
+{
+
+}
+
+int _tmain2(int argc, _TCHAR* argv[])
 {
 	const char compile_time[]= __TIME__;
 	const char compile_date[]= __DATE__;
