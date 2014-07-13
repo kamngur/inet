@@ -4,7 +4,7 @@
  *  Created on: 15-01-2013
  *      Author: Kangur
  */
-#include <dm9000a.h>
+//#include <dm9000a.h>
 #include "packet.h"
 #include "bits_swap.h"
 #include "types.h"
@@ -37,7 +37,7 @@ int32_t free_count = 0;
 
 void init_lists()
 {
-	int i = 0;
+	int i = 0;  
 	frame * ptr;
 
 
@@ -95,6 +95,8 @@ frame * get_free_frame()
 			{
 				ptr->f_maxlen = ETHER_MAX_LEN;
 				ptr->f_data = malloc(ETHER_MAX_LEN);
+                if(ptr->f_data == 0)
+                    printf("%s: We have problem\n",__FUNCTION__);
 				ptr->f_len =0;
 #ifdef _DEBUG
 				frames_count++;
@@ -195,9 +197,7 @@ int create_packiet(void *packet_data,uint32_t pack_len,void * data,uint32_t data
 	create_ethernet_header(eth,get_host_mac(),get_server_mac(),ETHER_TYPE_IPV4);
 	init_ip_header(ip);
 	 ip_hdr_size2 = ip->ip_hl& 0xF;
-	 int aaaa = IP_HDR_LENGHT;
-	 int aaaa2 = IP_HEADER_SIZE;
-	 int bbb = UDP_HEADER_SIZE;
+	
 	 ip->ip_len = swap_int16(IP_HEADER_SIZE + UDP_HEADER_SIZE + m_data_len ); // why ??
 	 ip->ip_crc =ip_checksum (ip,sizeof(ip_header));
 

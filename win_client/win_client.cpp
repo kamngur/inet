@@ -1,11 +1,18 @@
 // win_client.cpp : Defines the entry point for the console application.
 //
 
+
 #include "stdafx.h"
+
+
 #include "pcap.h"
 #pragma pack(push,1)
 extern "C"
 {
+#include <WinNT.h>
+#include <WinDef.h>
+#include <WinBase.h>
+
 #include "ethernet_header.h"
 #include "ip_header.h"
 #include "udp_head.h"
@@ -29,14 +36,14 @@ pcap_t *adhandle;
 
 
 
-
+uint32_t tmp =1;
 
 
 
 void add_crc(unsigned char *ptr,unsigned int tx_len)
 {
 	
-	
+	uint32_t m_tmp;
 	uint32_t ethernet_len;
 	uint8_t *my_ptr=0;
 	uint16_t udp_crc=0;
@@ -49,23 +56,28 @@ void add_crc(unsigned char *ptr,unsigned int tx_len)
 	ip_header * ip;
 	udp_header * udp ;
 	get_headers((char *) ptr, &eth, &ip, &udp, 0 );
+    ip->ip_crc = 0;
 	ip->ip_crc =ip_checksum (ip,sizeof(ip_header));
 	m_data_len = swap_uint16(udp->uh_ulen);
-	ethernet_len = ETHER_HDR_LEN + IP_HEADER_SIZE +  UDP_HEADER_SIZE + m_data_len + 4;
+//	ethernet_len = ETHER_HDR_LEN + IP_HEADER_SIZE +  UDP_HEADER_SIZE + m_data_len + 4;
+    ethernet_len = ETHER_HDR_LEN + IP_HEADER_SIZE +  UDP_HEADER_SIZE + m_data_len  ;
 	
-	udp_crc = udp_sum_calc((uint16_t*)udp,m_data_len+8,(uint16_t*)&(ip->ip_src),(uint16_t*)&(ip->ip_dst));
-	udp_crc2 = udp_checksum(udp,m_data_len+8,&(ip->ip_src),&(ip->ip_dst));
-	udp_crc3 = udp_sum_calc((uint16_t*)udp,m_data_len,(uint16_t*)&(ip->ip_src),(uint16_t*)&(ip->ip_dst));
-	udp_crc4 = udp_checksum(udp,m_data_len,&(ip->ip_src),&(ip->ip_dst));
-	udp->uh_crc = udp_crc;
-	
-
-	eth_crc = ethernet_checksum(ptr,ethernet_len);
-	my_ptr = ptr + ethernet_len -4;
+	//udp_crc = udp_sum_calc((uint16_t*)udp,m_data_len+8,(uint16_t*)&(ip->ip_src),(uint16_t*)&(ip->ip_dst));
+	//udp_crc2 = udp_checksum(udp,m_data_len+8,&(ip->ip_src),&(ip->ip_dst));
+	//udp_crc3 = udp_sum_calc((uint16_t*)udp,m_data_len,(uint16_t*)&(ip->ip_src),(uint16_t*)&(ip->ip_dst));
+	//udp_crc4 = udp_checksum(udp,m_data_len,&(ip->ip_src),&(ip->ip_dst));
+	//udp->uh_crc = swap_uint16(udp_crc);
+	m_tmp = ethernet_len;
+   // eth_crc = ether_crc_le(m_tmp,(char*)ptr,1);
+	eth_crc = ~ether_crc32_le_update(ptr,m_tmp);
+	my_ptr = ptr + ethernet_len ;
+    *my_ptr++=(uint8_t)((eth_crc & 0x000000ff));
+    *my_ptr++=(uint8_t)((eth_crc & 0x0000ff00)>>8);
+    *my_ptr++=(uint8_t)((eth_crc & 0x00ff0000)>>16);
 	*my_ptr++=(uint8_t)((eth_crc & 0xff000000)>>24);
-	*my_ptr++=(uint8_t)((eth_crc & 0x00ff0000)>>16);
-	*my_ptr++=(uint8_t)((eth_crc & 0x0000ff00)>>8);
-	*my_ptr++=(uint8_t)((eth_crc & 0x000000ff));
+	
+	
+	
 
 }
 
@@ -149,7 +161,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 			return;
 
 		m_frame->f_len = header->len;
-		memcpy(m_frame->f_data,pkt_data,header->len);
+		memcpy(m_frame->f_data,pkt_data,header->len); //XXX
 
 		add_rx_frame(m_frame);
 		m_frame = 0;
@@ -171,7 +183,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	//dport = uh->uh_dport ;
 
 	/* print ip addresses and udp ports */
-	printf("%d.%d.%d.%d.%d -> %d.%d.%d.%d.%d\n",
+    printf("%d.%d.%d.%d:%d -> %d.%d.%d.%d:%d\n",
 		ih->ip_src.byte1,
 		ih->ip_src.byte2,
 		ih->ip_src.byte3,
@@ -186,12 +198,13 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain2(int argc, _TCHAR* argv[])
 {
+    return 0;
 
 }
 
-int _tmain2(int argc, _TCHAR* argv[])
+int _tmain(int argc, _TCHAR* argv[])
 {
 	const char compile_time[]= __TIME__;
 	const char compile_date[]= __DATE__;
@@ -203,8 +216,8 @@ int _tmain2(int argc, _TCHAR* argv[])
 	//set_config();
 	char errbuf[PCAP_ERRBUF_SIZE];
 	u_int netmask;
-	//char packet_filter[] = "ip and udp";
-	char packet_filter[] = "";
+	char packet_filter[] = "ip and udp";
+	//char packet_filter[] = "";
 	struct bpf_program fcode;
 	init_lists();
 	/* Retrieve the device list */
@@ -231,6 +244,7 @@ int _tmain2(int argc, _TCHAR* argv[])
 	}
 	
 	printf("Enter the interface number (1-%d):",i);
+   // inum = 1;
 	scanf("%d", &inum);
 	
 	/* Check if the user specified a valid adapter */
@@ -303,6 +317,11 @@ int _tmain2(int argc, _TCHAR* argv[])
 	
 	/* start the capture */
 	pcap_loop(adhandle, 0, packet_handler, NULL);
-	
+	/*do more in new thread*/
+
+
+   	printf("\n Test 22122222222222222\n");
+
+
 	return 0;
 }

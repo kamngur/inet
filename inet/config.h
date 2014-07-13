@@ -20,8 +20,8 @@ extern ether_addr host_mac;
 
 void set_config(); //inits data 
 
-in_port_t * get_host_port();
-in_port_t * get_server_port();
+const in_port_t  get_host_port();
+const in_port_t  get_server_port();
 
 ip_address *get_host_ip();
 ip_address *get_server_ip();

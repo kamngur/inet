@@ -85,25 +85,28 @@ void dbg_ip_header(ip_header * ptr)
 	}
 	
 }
-
+static uint32_t _tmp = 1;
 uint16_t ip_checksum(const void *buf, size_t hdr_len)
 {
-	unsigned long sum = 0;
+	uint32_t sum = 0;
+    uint16_t out =0;
 	const uint16_t *ip1;
-
+   // hdr_len= hdr_len + 1;
+   // hdr_len = _tmp %30;
+   // _tmp++;
 	ip1 = buf;
 	while (hdr_len > 1)
 	{
-		sum += *ip1++;
-		if (sum & 0x80000000)
-			sum = (sum & 0xFFFF) + (sum >> 16);
+		//sum += swap_uint16(*ip1++);
+        sum += swap_uint16(*ip1);
+		ip1++;
 		hdr_len -= 2;
 	}
 
-	while (sum >> 16)
-		sum = (sum & 0xFFFF) + (sum >> 16);
-
-	return(~sum);
+	
+		out = (sum & 0xFFFF) + (sum >> 16);
+        out = out& 0xFFFF;
+	return(swap_uint16(~out));
 }
 
 uint16_t ip_num=0;
@@ -111,22 +114,26 @@ uint16_t ip_num=0;
 void init_ip_header(ip_header * ptr)
 {
 //ned to swap to net byte order
-	ip_address *src = get_host_ip();
-	ip_address *dst = get_server_ip();
-
+    
+	ip_address *src ;
+	ip_address *dst ;
+    memset(ptr,0,sizeof(ip_header));
+    src = get_host_ip();
+    dst = get_server_ip();
 	ptr->ip_hl	= (IP_HDR_VER << 4) | IP_HDR_IHL  ;
 	//ptr->ip_v	= 0x4;
 	ptr->ip_tos	= 0x00;
 	ptr->ip_len = 181;
-	ptr->ip_id	= swap_uint16(ip_num++);
+	ptr->ip_id	= swap_uint16(ip_num++); 
 	ptr->ip_off =swap_uint16(IP_DF);
-	ptr->ip_ttl	= 0x80;  // 128 <-> local  net
+	//ptr->ip_ttl	= 0x80;  // 128 <-> local  net
+    ptr->ip_ttl	= 0xff;  // 128 <-> local  net
 	ptr->ip_proto = IPPROTO_UDP;
 	ptr->ip_crc = 0; //later
 	ptr->ip_src = *src;
 	ptr->ip_dst = *dst; //localhost
 //	ptr->ip_options = 0x0;
-	
+	ptr->ip_crc =ip_checksum (ptr,sizeof(ip_header));
 
 
 }
@@ -146,7 +153,8 @@ void init_ip_fragment_header(ip_header * ptr,uint16_t flags,uint16_t offset,uint
 	//ptr->ip_v	= 0x4;
 	ptr->ip_tos	= 0x00;
 	ptr->ip_len = 181;
-	ptr->ip_id	= swap_uint16(ip_num++);
+//	ptr->ip_id	= swap_uint16(ip_num++);
+    ptr->ip_id	= swap_uint16(ip_num);
 	temp1 = swap_uint16(flags);
 	temp2 = swap_uint16(offset);
 	//ptr->ip_off =(swap_uint16(flags)&0x07)|(swap_uint16(offset)&0xF8); //TODO

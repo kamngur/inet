@@ -37,8 +37,8 @@ int init_ncp_data(void *data, uint32_t data_len ,uint32_t type, uint32_t option1
 
 int ncp_register(void *data, uint32_t data_len )
 {
-	return init_ncp_data(data,data_len,NCP_REGISTER,0,0,get_host_uuid(),get_project_uuid(),get_task_uuid());
-
+	//return init_ncp_data(data,data_len,NCP_REGISTER,0,0,get_host_uuid(),get_project_uuid(),get_task_uuid());
+    return init_ncp_data(data,data_len,NCP_REGISTER,0,0,get_host_uuid(),get_project_uuid(),get_task_uuid());
 }
 
 /*

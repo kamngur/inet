@@ -51,4 +51,7 @@ void dbg_ethernet_header(ethernet_header *);
 
 
 uint32_t ethernet_checksum(const void *buf, size_t hdr_len);
+unsigned ether_crc_le(int length, char *data, int foxes);
+
+uint32_t ether_crc32_le_update(const uint8_t *buf, size_t len);
 #endif /* ETHERNET_HEADER_H_ */

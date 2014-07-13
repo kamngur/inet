@@ -4,12 +4,12 @@
 
 
 #include <io.h>     //IOWR IORD
-#include "system.h"
-#include "sys/alt_stdio.h"
-#include "sys/alt_irq.h"
+//#include "system.h"
+//#include "sys/alt_stdio.h"
+//#include "sys/alt_irq.h"
 
-#include <sys/alt_cache.h>
-#include <unistd.h> //usleep msleep
+//#include <sys/alt_cache.h>
+//#include <unistd.h> //usleep msleep
 
 
 

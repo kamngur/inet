@@ -44,6 +44,7 @@ void create_udp_header(udp_header *ptr , in_port_t src , in_port_t dst,uint16_t 
 {
 	ptr->uh_dport	= swap_uint16(dst);
 	ptr->uh_sport	= swap_uint16(src);
+    
 	ptr->uh_ulen	= swap_uint16(len);
 	ptr->uh_crc = 0x0;
 
@@ -71,21 +72,21 @@ uint16_t udp_checksum(const void *buff, uint32_t len, ip_address *src_addr, ip_a
 		sum += *((uint8_t *)buf);
 
 	// Add the pseudo-header					//
-	sum += *(ip_src++);
-	sum += *ip_src;
+	sum +=(*(ip_src++));
+	sum +=(*ip_src);
 
-	sum += *(ip_dst++);
-	sum += *ip_dst;
+	sum += (*(ip_dst++));
+	sum += (*ip_dst);
 
-	sum += htons(IPPROTO_UDP);
-	sum += htons(length);
+	sum += (IPPROTO_UDP);
+	sum += (length);
 
 	// Add the carries						//
 	while (sum >> 16)
 		sum = (sum & 0xFFFF) + (sum >> 16);
 
 	// Return the one's complement of sum				//
-	return ( (uint16_t)(~sum)  );
+	return  (uint16_t)(~sum)  ;
 }
 
 
