@@ -47,9 +47,9 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
+				BrowseInformation="1"
 				WarningLevel="3"
 				DebugInformationFormat="1"
-				ShowIncludes="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -215,6 +215,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\inet\state_machine.c"
+					>
+				</File>
+				<File
 					RelativePath="..\inet\udp.c"
 					>
 				</File>
@@ -282,6 +286,10 @@
 				</File>
 				<File
 					RelativePath="..\inet\queue.h"
+					>
+				</File>
+				<File
+					RelativePath="..\inet\state_machine.h"
 					>
 				</File>
 				<File

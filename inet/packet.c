@@ -232,6 +232,7 @@ int filter_packiets(char* packet_data,uint32_t pack_len)
 	//uint32_t packet_len =ETHER_MAX_LEN;
 	//uint16_t flags =0;
 	uint16_t port = 0;
+    uint16_t port_s = 0 ;
 
 	int u = IP_HDR_VER;
 	void * data_ptr =0;
@@ -271,11 +272,13 @@ int filter_packiets(char* packet_data,uint32_t pack_len)
 	//{
 	//	return 4;
 	//}
-	////port = swap_uint16(udp ->uh_dport);
-	////if( port != get_host_port() );
-	////{
-	////	return 5;
-	////}
+	port = swap_uint16(udp ->uh_dport);
+    port_s = get_host_port();
+
+	if( port != port_s)
+	{
+		return 5;
+	}
 	printf("get intresting data\n");
 
 	//udp_header * udp = (udp_header * )ip + ip->ip_hl*4;

@@ -20,6 +20,7 @@ extern "C"
 #include "packet.h"
 #include "build_time.h"
 #include "config.h"
+#include "work.h"
 };
 #pragma pop
 
@@ -37,6 +38,8 @@ pcap_t *adhandle;
 
 
 uint32_t tmp =1;
+
+uint32_t isInit = 0;
 
 
 
@@ -99,6 +102,20 @@ extern "C" int TransmitPacket (unsigned char *data_ptr,unsigned int tx_len)
 /* prototype of the packet handler */
 /* Callback function invoked by libpcap for every incoming packet */
 
+void register_client()
+{
+    char packiet[1502];
+    u_char * ptr=(u_char *)&packiet;
+    uint32_t data_len=1502;
+    char data[100]="abcdefgh\0" ;
+    int s= sizeof(ip_header);
+    ncp_register(&data,NCP_HEADER_SIZE);
+    s = create_packiet((void*)ptr,ETHER_MAX_LEN,&data,NCP_HEADER_SIZE);
+    TransmitPacket(ptr,s);
+
+
+
+}
 
 void send_packiet()
 {
@@ -128,6 +145,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	ethernet_header *eth;
 	ip_header *ih;
 	udp_header *uh;
+    ncp_header *nh; 
 	u_int ip_len;
 	u_short sport,dport;
 	time_t local_tv_sec;
@@ -145,8 +163,13 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 	strftime( timestr, sizeof timestr, "%H:%M:%S", ltime);
 
 	/* print timestamp and length of the packet */
-	printf("%s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
-
+	
+    if(isInit == 0)
+    {
+        printf("%s.%.6d Client send register message\n", timestr, header->ts.tv_usec);
+        register_client();
+        isInit = 1;
+    }
 	val = filter_packiets((char *)pkt_data, header->len);
 
 	if (val != 0)
@@ -166,7 +189,8 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 		add_rx_frame(m_frame);
 		m_frame = 0;
 	}
-	get_headers((char *)pkt_data,&eth,&ih,&uh,0);
+    printf("%s.%.6d len:%d \n", timestr, header->ts.tv_usec, header->len);
+	get_headers((char *)pkt_data,&eth,&ih,&uh,&nh);
 
 	
 	dbg_ethernet_header(eth);
@@ -194,7 +218,7 @@ void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_cha
 		ih->ip_dst.byte3,
 		ih->ip_dst.byte4,
 		dport);
-	send_packiet();
+	manage_ncp_loop((void *)pkt_data,header->len);
 
 }
 
@@ -244,8 +268,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	
 	printf("Enter the interface number (1-%d):",i);
-   // inum = 1;
-	scanf("%d", &inum);
+    inum = 4;
+	//scanf("%d", &inum);
 	
 	/* Check if the user specified a valid adapter */
 	if(inum < 1 || inum > i)

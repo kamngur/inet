@@ -9,15 +9,15 @@
 #define _WORK_H_
 
 
-extern unsigned char data[ETHER_MAX_LEN];
-extern uint32_t data_size = 0;
+//extern unsigned char data[ETHER_MAX_LEN];
+//extern uint32_t data_size = 0;
 
 
 
 
-ncp_header m_ncp;
 
 
+int manage_ncp(void * packiet_data,uint32_t packiet_len );
+int manage_ncp_loop(void * packiet_data,uint32_t packiet_len );
 
-int manage_ncp(ncp_header * in_ncp);
 #endif
