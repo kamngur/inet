@@ -9,7 +9,7 @@
 #include "ip_header.h"
 #include "ncp.h"
 
-#define VMWARE
+//#define VMWARE
 
 #ifdef VMWARE
 
@@ -29,9 +29,10 @@ static ip_address server_ip  = {192,168,229,135};
 
 #endif
 
-//static ip_address host_ip = {192,168,124,1};
-//static ip_address server_ip = {192,168,124,1};
-
+static ether_addr host_mac= { 0x00, 0x0c, 0x29, 0x58, 0xf8, 0x3b }; //REALTEC ETHERNET
+static ip_address host_ip = {192,168,1,2};
+static ip_address server_ip = {192,168,1,1};
+static ether_addr server_mac= {0x5c, 0xf9 , 0xdd , 0x53,0x07, 0x34};
 //static ip_address host_ip = {192,168,229,1};
 //static ip_address server_ip = {192,168,229,130};
 

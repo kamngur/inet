@@ -4,12 +4,12 @@
 
 
 #include <io.h>     //IOWR IORD
-//#include "system.h"
-//#include "sys/alt_stdio.h"
-//#include "sys/alt_irq.h"
+#include "system.h"
+#include "sys/alt_stdio.h"
+#include "sys/alt_irq.h"
 
-//#include <sys/alt_cache.h>
-//#include <unistd.h> //usleep msleep
+#include <sys/alt_cache.h>
+#include <unistd.h> //usleep msleep
 
 
 
@@ -62,7 +62,7 @@
 #define RTFCR_set       0x29  /* RTFCR REG. 0AH RX/TX Flow Control Register enable TXPEN + BKPM(TX_Half) + FLCE(RX) */
 #define ETXCSR_set      0x03  /* Early Transmit Bit [7] Enable and Threshold 0~3: 12.5%, 25%, 50%, 75% */
 #define TCSCR_set       0x04  /* Checksum for UDP and  not for IP */
-#define TX_CRC_set      0x00  /* TCP/UDP/IP CheckSum Generation Disable */
+#define TX_CRC_set      0x01 //0x07  /* TCP/UDP/IP CheckSum Generation Disable */
 #define RX_DCSE         0x03  /* Discard CheckSum Error packet */
 #define INTR_set        0x81  /* IMR REG. FFH: PAR +PRM, or 0x83: PAR + PRM + PTM */
 #define INTR_set2        0xa3  /* IMR REG. FFH: PAR +PRM, or 0x83: PAR + PRM + PTM+ LINKCHGI */

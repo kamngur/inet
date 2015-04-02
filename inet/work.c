@@ -9,24 +9,25 @@
 #include "packet.h"
 #include "../dm9000a.h"
 
-static state current_state = IDLE; //skip register it's done
-static state next_state = IDLE;
 
-char input[ETHER_MAX_LEN];
-uint16_t input_size = 0;
+static volatile state current_state = START; //skip register it's done
+static volatile state next_state = START;
+
+char volatile input[ETHER_MAX_LEN];
+uint16_t volatile input_size = 0;
 
 
-char output_packiet[ETHER_MAX_LEN];
-uint16_t output_size=0;
+char volatile output_packiet[ETHER_MAX_LEN];
+uint16_t volatile output_size=0;
 
 
 
 const uint16_t MAX_NCP_LEN = ETHER_MAX_LEN - ETHER_HDR_LEN - IP_HEADER_SIZE - UDP_HEADER_SIZE ;
 
-char outcome_ncp[ETHER_MAX_LEN];
-uint16_t outcome_size=NCP_HEADER_SIZE;
+char volatile outcome_ncp[ETHER_MAX_LEN];
+uint16_t volatile outcome_size=NCP_HEADER_SIZE;
 
-ncp_header *m_ncp = outcome_ncp;
+volatile ncp_header *m_ncp = outcome_ncp;
 
 static uuid LOOPBACK_TASK ={ 0x00, 0x00, 0x00, 0x00, { 0x00, 0x00, 0x0, 0x00, 0x00, 0x00 } };
 
@@ -59,7 +60,7 @@ int process_ncp(ncp_header * input_data,uint16_t input_len, ncp_header *output_d
 
 int manage_ncp(void * packiet_data,uint16_t packiet_len )
 {
-	int i =0;
+	int i = 0;
 	ethernet_header* eh;
 	ip_header * ip;
 	udp_header * udp;
@@ -90,6 +91,8 @@ int manage_ncp(void * packiet_data,uint16_t packiet_len )
 			if(i == 0)
 				next_state = PROCESSING ;
 		}
+		else
+			return 0;
 
 		break;
 		// wait for processing order
@@ -102,7 +105,7 @@ int manage_ncp(void * packiet_data,uint16_t packiet_len )
 	case RESULT:
 
 		ncp_result(&m_ncp,NCP_HEADER_SIZE,0,0);
-		output_size = create_packiet(output_packiet,ETHER_MAX_LEN,m_ncp,outcome_size);
+		output_size = create_packiet(output_packiet,ETHER_MAX_LEN,&m_ncp,outcome_size);
 		TransmitPacket(output_packiet,output_size);
 		next_state = IDLE;
 		break;
@@ -137,6 +140,7 @@ int manage_ncp_loop(void * packiet_data,uint16_t packiet_len )
             ncp_register(&m_ncp,NCP_HEADER_SIZE);
             output_size = create_packiet(output_packiet,ETHER_MAX_LEN,m_ncp,NCP_HEADER_SIZE);
             TransmitPacket(output_packiet,output_size);
+           // printf("Registered client\n");
             next_state = IDLE;
             break;
         case IDLE:

@@ -5,6 +5,6 @@
  *      Author: Kangur
  */
 
-#include "inet/ethernet_header.h"
+#include "ethernet_header.h"
 
 

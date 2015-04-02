@@ -211,8 +211,8 @@ unsigned int DM9000_init (void) //  initialize DM9000 LAN chip
   iow(IMR, INTR_set2);   // IMR REG. FFH PAR=1 only, or + PTM=1& PRM=1 enable RxTx interrupts
 
 //   enable RX (Broadcast/ ALL_MULTICAST) ~go
-  iow(RCR , RCR_set | RX_ENABLE );  // RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter
-
+  iow(RCR , RCR_set | RX_ENABLE | PASS_MULTICAST);  // RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter
+ // iow(RCR , RCR_set | RX_ENABLE );  // RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter
 
  //  RETURN "DEVICE_SUCCESS" back to upper layer
  // printf("\n");
@@ -286,7 +286,7 @@ unsigned int  ReceivePacket (unsigned char *data_ptr,unsigned int *rx_len)
     IOWR (DM9000A_BASE, IO_addr, MRCMD); /* set MRCMD REG. F2H RX I/O port ready */
    // usleep(STD_DELAY);
     RxStatus = IORD (DM9000A_BASE,IO_data);
-  //  usleep(STD_DELAY);
+    //usleep(STD_DELAY);
     rx_len[0] = IORD (DM9000A_BASE,IO_data);
 
     /* Check this packet_status GOOD or BAD? */
@@ -307,7 +307,7 @@ unsigned int  ReceivePacket (unsigned char *data_ptr,unsigned int *rx_len)
       /* this packet is bad, dump it from RX SRAM */
       for (i = 0; i < rx_len[0]; i += 2)
       {
-       // usleep(STD_DELAY);
+        //usleep(STD_DELAY);
         Tmp = IORD (DM9000A_BASE, IO_data);
       }
       printf("\nError\n");
@@ -336,7 +336,8 @@ unsigned int  ReceivePacket (unsigned char *data_ptr,unsigned int *rx_len)
     /* enable interrupts to activate DM9000 ~on */
    // iow(IMR, INTR_set);   /* IMR REG. FFH PAR=1 only, or + PTM=1& PRM=1 enable RxTx interrupts */
     /* enable RX (Broadcast/ ALL_MULTICAST) ~go */
-    iow(RCR , RCR_set | RX_ENABLE );  /* RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter */
+    iow(RCR , RCR_set | RX_ENABLE | PASS_MULTICAST );  /* RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter */
+   // iow(RCR , RCR_set | RX_ENABLE  );  /* RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter */
   } /* end NIC H/W system Data-Bus error */
   iow(IMR, INTR_set2);
   return GoodPacket ? DMFE_SUCCESS : DMFE_FAIL;
@@ -396,7 +397,8 @@ unsigned int ReceivePacket2(unsigned char *data_ptr, unsigned int *rx_len) {
 		    /* enable interrupts to activate DM9000 ~on */
 		  //  iow(IMR, INTR_set);   /* IMR REG. FFH PAR=1 only, or + PTM=1& PRM=1 enable RxTx interrupts */
 		    /* enable RX (Broadcast/ ALL_MULTICAST) ~go */
-		    iow(RCR , RCR_set | RX_ENABLE );  /* RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter */
+		    iow(RCR , RCR_set | RX_ENABLE | PASS_MULTICAST );  /* RCR REG. 05 RXEN Bit [0] = 1 to enable the RX machine/ filter */
+		   // iow(RCR , RCR_set | RX_ENABLE);
 		    return DMFE_FAIL;
 		}
 

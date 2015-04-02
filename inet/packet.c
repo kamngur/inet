@@ -12,6 +12,7 @@
 #include "ip_header.h"
 #include "ethernet_header.h"
 #include "queue.h"
+#include "arp.h"
 //#include "packet.h"
 
 
@@ -25,12 +26,12 @@
 //! This is the IP netmask of this host (expressed in network format).
 //static ip_address host_netmask =  {0,0,0,0};
 
-TAILQ_HEAD(free_frames,frame) free_frames;
-TAILQ_HEAD(rx_frames,frame) rx_frames;
+volatile TAILQ_HEAD(free_frames,frame) free_frames;
+volatile TAILQ_HEAD(rx_frames,frame) rx_frames;
 #ifdef _DEBUG
-uint32_t frames_count = 0;
-int32_t rx_count = 0;
-int32_t free_count = 0;
+volatile uint32_t frames_count = 0;
+volatile int32_t rx_count = 0;
+volatile int32_t free_count = 0;
 #endif
 
 
@@ -38,7 +39,7 @@ int32_t free_count = 0;
 void init_lists()
 {
 	int i = 0;  
-	frame * ptr;
+	volatile frame * ptr;
 
 
 	TAILQ_INIT(&free_frames);
@@ -126,10 +127,10 @@ frame * get_free_frame()
 frame* get_rx_frame()
 {
 
-	frame* ptr = TAILQ_FIRST(&rx_frames);
+	volatile frame* ptr = TAILQ_FIRST(&rx_frames);
 	if(ptr ==0)
 	{
-		printf("%s: Error no rx frames to get\n",__FUNCTION__);
+		//printf("%s: Error no rx frames to get\n",__FUNCTION__);
 		return 0;
 	}
 	TAILQ_REMOVE(&rx_frames,ptr,f_tail);
@@ -150,8 +151,9 @@ void add_rx_frame( frame * ptr)
 
 #ifdef _DEBUG
 	rx_count++;
+	//printf("%s: added frame \n",__FUNCTION__);
 #endif
-	printf("%s: added frame \n",__FUNCTION__);
+
 }
 
 
@@ -189,7 +191,8 @@ int create_packiet(void *packet_data,uint32_t pack_len,void * data,uint32_t data
 	}
 	else
 	{
-		m_data_len = data_len-UDP_HEADER_SIZE;
+		//m_data_len = data_len-UDP_HEADER_SIZE;
+		m_data_len = data_len;
 	}
 
 	get_headers((char * )packet_data, &eth,&ip , &udp, &ptr);
@@ -201,9 +204,14 @@ int create_packiet(void *packet_data,uint32_t pack_len,void * data,uint32_t data
 	 ip->ip_len = swap_int16(IP_HEADER_SIZE + UDP_HEADER_SIZE + m_data_len ); // why ??
 	 ip->ip_crc =ip_checksum (ip,sizeof(ip_header));
 
-	create_udp_header(udp, (in_port_t) get_host_port(),(in_port_t) get_server_port(),m_data_len,0);
+	create_udp_header(udp, (in_port_t) get_host_port(),(in_port_t) get_server_port(),data_len,0);
 
 	memcpy(ptr,data,(size_t)m_data_len);
+
+	udp->uh_crc = udp_checksum((void *)udp,data_len+UDP_HEADER_SIZE,&ip->ip_src,&ip->ip_dst);//xxx
+
+
+
 
 	return m_data_len + ETHER_HDR_LEN + IP_HEADER_SIZE + UDP_HEADER_SIZE + ETHER_CRC_LEN;
 	
@@ -241,20 +249,28 @@ int filter_packiets(char* packet_data,uint32_t pack_len)
 	
 	//ncp_datagram* ptr= &packet;
 	ethernet_header * eth;
+	arp_header * arp;
 	ip_header * ip;
 	udp_header *udp;
 	ip_address * addres  = get_host_ip();
+
 	int i;
 
 	get_headers(packet_data, &eth, &ip, &udp ,0);
 
 	if(eth->ether_type == 0x0608 ) //ARP
 	{
+		arp = ip;
+		if (memcmp(&arp->arp_target_ip ,get_host_ip(),sizeof(ip_address)) == 0)
+		{
+			return 10;
+		};
 		return -1 ;//if arp its ok
 	}
 
 	if (eth->ether_type != 0x0008 ) //ethernet //swap(ETHER_TYPE) 
 	{
+
 		return 1;
 	}
 
